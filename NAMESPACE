@@ -1,0 +1,33 @@
+export(
+
+SPIA, DEGraph, Clipper, TBS, PWEA, TAPPA, TopologyGSA,
+res, topo.sig, degtable,
+convertIdentifiersByVector,
+AdjacencyMatrix2Pathway, graphNEL2Pathway,
+reduceGraph
+)
+S3method(print, topResult)
+S3method(topo.sig, topResult)
+S3method(degtable, topResult)
+S3method(res, topResult)
+S3method(summary, topResult)
+S3method(plot,topResult)
+
+import(graphite, gRbase, graph, locfit)
+importFrom(DESeq2, DESeqDataSetFromMatrix, DESeq, results, estimateSizeFactors, estimateDispersions, nbinomWaldTest, varianceStabilizingTransformation)
+importFrom(GenomicRanges, assay, colData, "colData<-")
+
+importFrom(igraph, shortest.paths,igraph.from.graphNEL, get.all.shortest.paths)
+importFrom(R.utils, reassignInPackage)
+importFrom(edgeR,DGEList, calcNormFactors)
+
+
+importFrom(DESeq, newCountDataSet, estimateSizeFactors, estimateDispersions)
+importFrom(fields, image.plot)
+importFrom(TeachingDemos, shadowtext)
+importFrom(limma,  lmFit, makeContrasts, contrasts.fit, eBayes, decideTests, topTable, voom) 
+importMethodsFrom(graph, edgeData, edgeDataDefaults)
+
+importFrom(SPIA, spia)
+importFrom(clipper, pathQ, easyClip, cliqueMeanTest, cliqueVarianceTest)
+importFrom(topologyGSA, pathway.mean.test, pathway.var.test, clique.mean.test, clique.var.test)

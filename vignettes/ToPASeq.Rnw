@@ -1,0 +1,591 @@
+%\VignetteDepends{ToPASeq, graphite, limma, DESeq2, gRbase, graph, Rgraphviz} 
+%\VignetteSuggests{ALL, SPIA, DEGraph, clipper, topologyGSA, gageData}
+%\VignetteIndexEntry{An R Package for topology-based pathway analysis of microaray and RNA-Seq data}
+%\VignettePackage{ToPASeq}
+
+\documentclass[letterpaper]{report}
+
+\title{ToPASeq: an R package for topology-based pathway analysis of microarray and RNAseq data}
+\author{Ivana Ihnatova}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+
+\chapter{Introduction}
+
+This package de-novo implements or adjust the existing implementations of several different methods for topology-based pathway analysis of gene expression data from microarray and RNA-Seq technologies.
+
+These high-throughput technologies are used for measuring of expression levels of thousands genes in one experiment often with the aim to find pathways and biological processes affected between two conditions. The information which biological processes are affected helps investigators to set-up biologically relevant hypotheses for further research.
+
+To this end, a differential gene expression between conditions is assessed - by the means of specific methods, such as limma for instance, which produce lists of differentially expressed genes with specific statistics and p-values for each gene, as well as fold change of mean expression between compared groups.
+
+Pathway analysis is the next step, where these differentially expressed genes are mapped to reference pathways derived from databases and relative enrichment is assessed.  Methods of topology-based pathway analysis are the last generation of pathway analysis methods that take into account the topological structure of a pathway, which helps to increase specificity and sensitivity of the results.
+
+This package implements seven topology-based pathway analysis methods that focus on identification of the pathways that are differentially affected between two conditions (Table~\ref{Tab:01}). Each method is implemented as a single wrapper function which allows the user to call a method in a single command. In addition, this package offers a visualization of the results. The visualization is based on the \texttt{Rgraphviz} package and displays distribution of differential expression and topological significance of the nodes from one pathway. The user can simplify the pathway topology by merging selected sets of nodes into one (individual gene names is the only information that is lost in it).
+
+\begin{table}
+\caption{Methods included in the package. \label{Tab:01}}
+{\begin{tabular}{lllll}\hline
+Method & Ref. & Type & Implementation\\\hline
+TopologyGSA & \cite{Massa} & M & imported\\
+DEGraph & \cite{Jacob} & M & imported\\
+clipper & \cite{clipper} & M & imported\\
+SPIA & \cite{Tarca},& U & imported\\
+& \cite{Draghici} &&\\
+TBS & \cite{Ibrahim} & U & de novo\\
+PWEA & \cite{Hung} & U & de novo\\
+TAPPA & \cite{TAPPA} & U & de novo\\\hline
+\end{tabular}}
+
+{M - multivariable, U - univariable}
+\end{table}
+
+
+\section {Input, output and general functionalities}
+
+The input data are either normalized (count) data or gene expression data as well as pathway topological structure.
+
+For the sake of simplicity, our package offers in each wrapper function a pre-processing step for RNA-seq normalization - TMM~\cite{TMM} and DESeq~\cite{DESeq}. If necessary, the functions also performs differential gene expression analysis through calling limma and DESeq2 packages.
+
+To summarize, the wrapper functions give options to: 1) normalize the count data (for RNAseq) 2) apply differential expression analysis on gene-level, if applicable, and finally 3) perform topologifal pathway analysis. The functions provides output in a uniform format defined as a new S3 class topResult with basic methods (print, plot, summary) and methods for obtaining the individual parts of the output.
+
+\section{Pathway topological structure}
+
+Pathways and their topological structures are an important input for the analysis. They are represented as graphs $G=(V,E)$, where $V$ denotes a set of vertices or nodes represented by genes and $E \subseteq V \times V$ is a set of edges between nodes (oriented or not, depending on the method) representing the interaction between genes. These structures are can be downloaded from public databases such as KEGG or Biocarta or are available through other packages such as {\tt graphite}.
+
+ToPASeq is build upon {\tt graphite} R-package where pathways from seven public databases: KEGG, Biocarta, Reactome, NCI, SPIKE, HumanCyc, Panther were downloaded and parsed into a new S4 class \texttt{pathway}. The parsing process deals also with a special type of nodes that can be found in biological pathways. Protein complexes are expanded into cliques since it is assumed that all units from one complex interact with each other. A clique, from graph theory, is a subset of vertices such that every two vertices in the subset are connected by an edge. On the other hand, gene families are expanded into separate nodes with same incoming and/or outgoing edges, because they are believed to be interchangable. The most important modification is the propagation of signal through the so called compound-mediated interactions.  By compound-mediated interaction we mean an interaction that engages not only genes or their product but also other chemical compounds e.g. calcium ions. \texttt{graphite} is the first package that propagates signal through such interactions. For example, if gene \emph{A} interacts with compound \emph{c} and compound \emph{c} with gene \emph{B} then in a pathway topology gene \emph{A} should interact with gene \emph{B}. Please see~\cite{graphite} for more details.
+
+\section{Preparing and manipulating pathways}
+
+The easiest way is to use pathway available through graphite. However, you might need to use your own pathway - the easiest way is to download it from some database (do not forget this pathway needs to contain topological information!)  and convert it to the correct format using our specific functions for pathway conversion and manipulation.
+
+Functions \texttt{AdjacencyMatrix2Pathway} and \texttt{graphNEL2Pathway} coerce either an adjacency matrix (binary matrix, where 1 means an edge between two genes) or \texttt{graphNEL} into \texttt{pathway}.
+For a reduction of a specified set of nodes (e.g. genes from the same class with similar function), which helps to simply the graphical graph representation, you can use function \texttt{reduceGraph}.
+
+Any other topological manipulations can be achieved through \texttt{graphNEL} and conversion from and to \texttt{pathway}.
+
+The normalized gene expression data or count data can be in two formats. One is an simple matrix were rows refer to genes and the other one is an \texttt{ExpressionSet}. There are four acceptable formats for the clincal data: the name or number of \texttt{phenoData} of \texttt{ExpressionSet} or a character or numeric vector that is coerced to factor. We will demonstrate the features of the package on the example of analysis of two datasets. For microarray data we will use the log2-transformed normalized expression data from the \texttt{DEGraph} package and for RNA-Seq data we will use the count data from \texttt{gageData} package.  The pathway topologies are available as objects named according to the database they come from: \texttt{kegg}, \texttt{biocarta}, \texttt{reactome}, \texttt{nci} etc.  
+
+
+
+\chapter{Analysis of microarray data}
+
+ In our example we will use the dataset \texttt{Loi2008\_DEGraphVignette} from \texttt{DEGraph} package. It conatains the expression profiles of 255 patients with hormone-dependent breast cancer stored as a matrix. The aim of the study was to determine which genes are differentially expressed between tamoxifen-resistant and tamoxifen-sensitive samples. Gene expression data matrix and vector of class labels is stored as separate objects  \texttt{exprLoi2008} and \texttt{classLoi2008}, respectively. In \texttt{classLoi2008}, \texttt{0} refers to a tamoxifen-resistant sample and \texttt{1} to a tamoxifen-sensitive one. We will not need the annotation data (\texttt{annLoi2008}) or KEGG pathways \texttt{grListKEGG} in our example. On the other hand, we will use a few first pathways from \texttt{KEGG}. The pathways were selected only in order to reduce the computational complexity of the analysis. Also, the outputs are displayed as comments following the command applying a method with high time requirements.
+                       
+\par
+
+<<echo=false>>=
+options(width=60)
+@
+
+                          
+We will load the package, the data and subset of the pathways with
+<<lib>>=
+library(ToPASeq)
+library(DEGraph)
+data(Loi2008_DEGraphVignette)
+pathways<-kegg[1:5]
+ls()
+@
+
+                     
+  
+\section{TopologyGSA}
+TopologyGSA represents a multivariable method in which the expression of genes is modelled with Gausian Graphical Models with covariance matrix reflecting the pathway topology. It uses the the Iterative Proportional Scaling algorithm to estimate the covariance matrices. The testing procedure is a two-step process. First the equality of covariance matrices is testes via a likelihood ratio test. Then, when the null hypothesis of equality of covariance matrices is not rejected, the differential expression is testes via multivariate analysis of variance. On the other hand, when the convariance matrices are not equal, then Behrens-Fisher method for testing the equality of means in a two sample problem with unequal covariance matrices is employed.
+
+The method can be used with a single command 
+ 
+<<eval=FALSE, echo=TRUE>>=  
+top<-TopologyGSA(exprLoi2008, classLoi2008, pathways, type="MA", nperm=200)
+#99 node labels mapped to the expression data
+#Average coverage 31.47657 %
+#0 (out of 5) pathways without a mapped node
+#Acute myeloid leukemia
+#Adherens junction
+#Adipocytokine signaling pathway
+#Adrenergic signaling in cardiomyocytes
+#African trypanosomiasis
+res(top)
+#                                        t.value df.mean1 df.mean2 p.value
+#Acute myeloid leukemia                 3080.663       30      224   0.000
+#Adherens junction                      1102.830       10      244   0.040
+#Adipocytokine signaling pathway        3196.432       25      229   0.000
+#Adrenergic signaling in cardiomyocytes 2178.476       26      228   0.055
+#African trypanosomiasis                1400.088        8      246   0.000
+#                                       lambda.value df.var  p.value.var
+#Acute myeloid leukemia                    217.92044    165 3.622794e-03
+#Adherens junction                          39.92094     10 1.749659e-05
+#Adipocytokine signaling pathway           192.81336    121 3.595452e-05
+#Adrenergic signaling in cardiomyocytes    169.47418     80 2.211953e-08
+#African trypanosomiasis                    13.77192     15 5.428926e-01
+#                                       qchisq.value var.equal
+#Acute myeloid leukemia                    195.97336         1
+#Adherens junction                          18.30704         1
+#Adipocytokine signaling pathway           147.67353         1
+#Adrenergic signaling in cardiomyocytes    101.87947         1
+#African trypanosomiasis                    24.99579         0
+
+@
+
+Apart from the expected arguments: a gene expression data matrix, a vector of class labels and a list of pathways, the user needs to specify the \texttt{type} argument which decides on the type of the data (\texttt{"MA"} is used for expression microarray and \texttt{"RNA-Seq"} for RNA-Seq data).  The others arguments are optional. The \texttt{nperm} argument sets the number of permutations to be used in the statistical tests. By default both mean and variance tests are run, this can be changed to only variance test by setting \texttt{test="var"}. Also the node labels of pathway topologies are converted into entrezIDs. This is controlled with arguments \texttt{convert}, and \texttt{IDs}. A converstion into the gene symbols is available too. Please note, that the node labels should be the same as the rownames of gene expression data matrix. The threshold for variance test is specified with \texttt{alpha} argument. The implementation allows also testing of all the cliques present in the graph by setting \texttt{testCliques=TRUE}. Please note that these tests may take quite a long time. 
+
+\section{DEGraph}
+Another multivariable method implemented in the package is DEGraph. This method assumes the same direction in the differential expresion of genes belonging to a pathway. It performs the regular Hotelling's T2 test in the graph-Fourier space restricted to its first $k$ components which is more powerful than test in the full graph-Fourier space or in the original space.
+
+We apply the method with 
+
+<<>>=
+deg<-DEGraph(exprLoi2008, classLoi2008, pathways, type="MA")
+res(deg)
+@  
+
+Apart from the expected arguments: a gene expression data matrix, a vector of class labels and a list of pathways, the user needs to specify the \texttt{type} argument which decides on the type of the data (\texttt{"MA"} is used for expression microarray and \texttt{"RNA-Seq"} for RNA-Seq data).  The others arguments are optional. By default, the node labels of pathway topologies are converted into entrezIDs. This is controlled with arguments \texttt{convert}, and \texttt{IDs}. A converstion into the gene symbols is available too. Please note, that the node labels should be the same as the rownames of gene expression data matrix.  Since, the DEGraph method runs a statistical test for each connected component of a pathway, a method for assigning a global p-value for whole pathway is needed. The user can select from three approaches: the minimum, the mean and the p-value of the biggest component. This is specified via \texttt{overall} argument. The implementation returns also a gene-level statistics of the differential expression of genes and the user can select between log fold-change (\texttt{gene.stat="logFC"}) or modified t-statistic from \texttt{limma} (\texttt{gene.stat="stats"}). These statistics are later used in the visualization of a selected pathway.
+
+
+\section{clipper}
+The last multivariable method available within this package is called clipper. This method is similar to the topologyGSA as it uses the same two-step approach. However, the Iterative Proportional Scaling algorithm was subsituted with a shrinkage procedure of James-Stein-type which additionally allows proper estimates also in the situation when number of samples is smaller than the number of genes in a pathway. The tests on a pathway-level are follwed with a search for the most affected path in the graph. 
+
+The method can be applied with 
+
+<<eval=FALSE, echo=TRUE>>=
+cli<-Clipper( exprLoi2008, classLoi2008, pathways,type="MA", test="mean")
+#99 node labels mapped to the expression data
+#Average coverage 31.47657 %
+#0 (out of 5) pathways without a mapped node
+#Acute myeloid leukemia
+#Adherens junction
+#Adipocytokine signaling pathway
+#Adrenergic signaling in cardiomyocytes
+#African trypanosomiasis
+res(cli)
+#                                       alphaVar alphaMean  maxScore activation
+#Acute myeloid leukemia                    0.788     0.008  4.336307  0.1255490
+#Adherens junction                         0.087     0.027        NA         NA
+#Adipocytokine signaling pathway           0.675     0.000 33.209403  0.8012589
+#Adrenergic signaling in cardiomyocytes    0.108     0.042        NA         NA
+#African trypanosomiasis                   0.966     0.005        NA         NA
+#                                          impact
+#Acute myeloid leukemia                 0.3846154
+#Adherens junction                             NA
+#Adipocytokine signaling pathway        0.5000000
+#Adrenergic signaling in cardiomyocytes        NA
+#African trypanosomiasis                       NA
+#                                                                                                                                                                                                                                                                                    involvedGenes
+#Acute myeloid leukemia                                                                                                                                                                                                                                              2475;6199;1978;2475;2475;6198
+#Adherens junction                                                                                                                                                                                                                                                                              NA
+#Adipocytokine signaling pathway        32;51422;53632;5562;5563;5564;5565;5571;2538;51422;53632;5562;5563;5564;5565;5571;5105;51422;53632;5562;5563;5564;5565;5571;5106;51422;53632;5562;5563;5564;5565;5571;51422;53632;5562;5563;5564;5565;5571;57818;51422;53632;5562;5563;5564;5565;5571;6517
+#Adrenergic signaling in cardiomyocytes                                                                                                                                                                                                                                                         NA
+#African trypanosomiasis                                                                                                                                                                                                                                                                        NA
+#                                                                                                                                                                                                                                                                                        pathGenes
+#Acute myeloid leukemia                                                                                                                                                     10000;207;208;23533;3265;3845;4893;5290;5291;5293;5294;5295;5296;8503,10000;207;208;2475,2475;6199,1978;2475,2475;6198
+#Adherens junction                                                                                                                                                                                                                                                                              NA
+#Adipocytokine signaling pathway        32;51422;53632;5562;5563;5564;5565;5571,2538;51422;53632;5562;5563;5564;5565;5571,5105;51422;53632;5562;5563;5564;5565;5571,5106;51422;53632;5562;5563;5564;5565;5571,51422;53632;5562;5563;5564;5565;5571;57818,51422;53632;5562;5563;5564;5565;5571;6517
+#Adrenergic signaling in cardiomyocytes                                                                                                                                                                                                                                                         NA
+#African trypanosomiasis                                                                                                                                                                                                                                                                        NA
+@
+
+Apart from the expected arguments: a gene expression data matrix, a vector of class labels and a list of pathways, the user needs to specify the \texttt{type} argument which decides on the type of the data (\texttt{"MA"} is used for expression microarray and \texttt{"RNA-Seq"} for RNA-Seq data).  The others arguments are optional. By default, the node labels of pathway topologies are converted into entrezIDs. This is controlled with arguments \texttt{convert}, and \texttt{IDs}. A converstion into the gene symbols is available too. Please note, that the node labels should be the same as the rownames of gene expression data matrix. Also, both mean and variance tests are run, this can be changed to only variance test by setting \texttt{test="var"}. The \texttt{nperm} controls the number of permutations in the statistical tests. Similarly as in topologyGSA,  the implementation allows testing of all the cliques present in the graph by setting \texttt{testCliques=TRUE}. Please note that these tests may take quite a long time. 
+
+
+\section{SPIA}
+The most well-known topology-based pathway analysis method is SPIA. In there, two evidences of differential expression of a pathway are combined. The first evidence is a regular so called overrepresentation analysis in which the statistical significance of the number of differentially expressed genes belonging to a pathway is assessed. The second evidence reflects the pathway topology and it is called the pertubation factor. The authors assume that a differentially expressed gene at the begining of a pathway topology (e.g. a receptor in a signaling pathway) has a stronger effect on the functionality of a pathway than a differentially expressed gene at the end of a pathway (e.g. a transcription factor in a signaling pathway). The pertubation factors of all genes are calculated from a system of linear equations and then combined within a pathway. The two evidences in a form of p-values are finally combined into a global p-value, which is used to rank the pathways.
+
+<<>>=
+spi<-SPIA(exprLoi2008, classLoi2008,pathways , type="MA", logFC.th=-1)
+res(spi)
+@  
+
+Apart from the expected arguments: a gene expression data matrix, a vector of class labels and a list of pathways, the user needs to specify the \texttt{type} argument which decides on the type of the data (\texttt{"MA"} is used for expression microarray and \texttt{"RNA-Seq"} for RNA-Seq data).  The others arguments are optional. By default, the node labels of pathway topologies are converted into entrezIDs. This is controlled with \texttt{IDs} argument. A converstion into the gene symbols is available too. Please note, that the node labels should be the same as the rownames of gene expression data matrix. The default thresholds for the differential expression analysis of genes (the moderated t-test from \texttt{limma} is used) are set with arguments \texttt{logFC.th} and \texttt{p.val.th}. The user can omit one of these criteria by setting the agrument negative value, as is shown also in the example. The implementation returns also a gene-level statistics of the differential expression of genes and the user can select between log fold-change (\texttt{gene.stat="logFC"}) or modified t-statistic from \texttt{limma} (\texttt{gene.stat="stats"}). These statistics are later used in the visualization of a selected pathway. 
+
+\section{TAPPA}
+TAPPA was among the first topology-based pathway analysis methods. It was inspired in chemointformatics and their models for predicting the structure of molecules. In TAPPA, the gene expression values are standardized and sigma-transformed within a samples. Then, a pathway is seen a molecule, individual genes as atoms and the energy of a molecule is a score defined for one sample. This score is called Pathway Connectivity Index. The difference of expression is assessed via a common univariable two sample test - Mann-Whitney in our implemetation. 
+
+<<>>=
+tap<-TAPPA(exprLoi2008, classLoi2008, pathways, type="MA")
+res(tap)
+@
+
+Apart from the expected arguments: a gene expression data matrix, a vector of class labels and a list of pathways, the user needs to specify the \texttt{type} argument which decides on the type of the data (\texttt{"MA"} is used for expression microarray and \texttt{"RNA-Seq"} for RNA-Seq data).  The others arguments are optional. By default, the node labels of pathway topologies are converted into entrezIDs. This is controlled with \texttt{IDs} argument. A converstion into the gene symbols is available too. Please note, that the node labels should be the same as the rownames of gene expression data matrix. The user can also specified whether the normalization step (standardization and sigma-transformation) should be perfomed (\texttt{normalize=TRUE}). If \texttt{verbose=TRUE}, function prints out the titles of pathways as their are analysed. The implementation returns also a gene-level statistics of the differential expression of genes and the user can select between log fold-change (\texttt{gene.stat="logFC"}) or modified t-statistic from \texttt{limma} (\texttt{gene.stat="stats"}). These statistics are later used in the visualization of a selected pathway. 
+
+
+\section{TBS}
+TBS is another method that works with gene-level statistics and a list of differentially expresed genes. The pathway topology is incorporated as the number of downstream differentially expressed genes. The gene-level log fold-changes are weigted by this numeber and sumed up into a pathway-level score. A statistical significance is assessed by a permutations of genes.  
+
+<<eval=FALSE, echo=TRUE>>=
+tbs<-TBS( exprLoi2008, classLoi2008, pathways, type="MA",  logFC.th=-1, nperm=100)
+#99 node labels mapped to the expression data
+#Average coverage 31.47657 %
+#0 (out of 5) pathways without a mapped node
+#0 denoted as 0
+# 1 denoted as 1
+# Contrasts:  0 - 1
+#Found 40 differentially expressed genes
+#Preparing permutation table and downstream list
+#Observed scores..
+#Random scores..
+#100
+#Normalization and p-values...
+res(tbs)
+#                                       TBS.obs.norm    p     p.adj
+#Acute myeloid leukemia                   -0.8012546 0.90 0.9000000
+#Adherens junction                         2.9052652 0.03 0.1250000
+#Adipocytokine signaling pathway           0.8461749 0.10 0.1666667
+#Adrenergic signaling in cardiomyocytes   -0.5548923 0.80 0.9000000
+#African trypanosomiasis                   1.5028307 0.05 0.1250000
+
+@
+
+Arguments of this functions are almost the same as in \texttt{SPIA}. Apart from the expected arguments: a gene expression data matrix, a vector of class labels and a list of pathways, the user needs to specify the \texttt{type} argument which decides on the type of the data (\texttt{"MA"} is used for expression microarray and \texttt{"RNA-Seq"} for RNA-Seq data).  The others arguments are optional. By default, the node labels of pathway topologies are converted into entrezIDs. This is controlled with \texttt{IDs} argument. A converstion into the gene symbols is available too. Please note, that the node labels should be the same as the rownames of gene expression data matrix.  The default thresholds for the differential expression analysis of genes (the moderated t-test from \texttt{limma} is used) are set with arguments \texttt{logFC.th} and \texttt{p.val.th}. The user can omit one of these criteria by setting the agrument negative value, as is shown also in the example. The implementation returns also a gene-level statistics of the differential expression of genes and the user can select between log fold-change (\texttt{gene.stat="logFC"}) or modified t-statistic from \texttt{limma} (\texttt{gene.stat="stats"}). These statistics are later used in the visualization of a selected pathway. There is one extra argument \texttt{nperm} which controls the number of permutations. 
+
+\section{PWEA}
+The last method available in this package is called PathWay Enrichment Analysis (PWEA). This is actually a weigthed form of common Gene Set Enrichment Analysis (GSEA). The weights are called Topological Influence Factor (TIF) and are defined as a geometic mean of ratios of Pearson's correlation coefficient and the distance of two genes in a pathway. The weights of genes outside a pathway are assigned randomly from normal distribution with parameters estimated from the weights of genes in all pathways. A statistical significance of a pathway is assessed via Kolmogorov-Simirnov-like test statistic comparing two cumulative distribution functions with class label permutations. 
+
+<<eval=FALSE, echo=TRUE>>=
+pwe<-PWEA(exprLoi2008, classLoi2008, pathways,  type="MA", nperm=100)
+#99 node labels mapped to the expression data
+#Average coverage 31.47657 %
+#0 (out of 5) pathways without a mapped node
+#0 denoted as 0
+# 1 denoted as 1
+# Contrasts:  0 - 1
+#Preparing data..
+#100
+#Processing gene set:
+#Acute myeloid leukemia
+#Adherens junction
+#Adipocytokine signaling pathway
+#Adrenergic signaling in cardiomyocytes
+#African trypanosomiasis
+res(pwe)
+#                                              ES    p p.adj
+#Acute myeloid leukemia                 0.1995347 0.81  0.81
+#Adherens junction                      0.5757274 0.67  0.81
+#Adipocytokine signaling pathway        0.3272288 0.32  0.81
+#Adrenergic signaling in cardiomyocytes 0.3888446 0.68  0.81
+#African trypanosomiasis                0.3544996 0.46  0.81
+@
+
+Apart from the expected arguments: a gene expression data matrix, a vector of class labels and a list of pathways, the user needs to specify the \texttt{type} argument which decides on the type of the data (\texttt{"MA"} is used for expression microarray and \texttt{"RNA-Seq"} for RNA-Seq data).  The others arguments are optional. By default, the node labels of pathway topologies are converted into entrezIDs. This is controlled with \texttt{IDs} argument. A converstion into the gene symbols is available too. Please note, that the node labels should be the same as the rownames of gene expression data matrix. The \texttt{alpha} parameter sets a threshold for gene weights. The purpose of this filtering is to reduce the possiblity that a weight of a gene that is tighly correlated with a few genes are lowered by the weak correlation with other genes in a pathway.The implementation returns also a gene-level statistics of the differential expression of genes and the user can select between log fold-change (\texttt{gene.stat="logFC"}) or modified t-statistic from \texttt{limma} (\texttt{gene.stat="stats"}). These statistics are later used in the visualization of a selected pathway. The \texttt{nperm}  argument controls the number of permutations. 
+
+\chapter{Analysis of RNA-Seq data}
+
+All of the methods metioned in the previus chapter were designed for the microarray data. However, the RNA-Seq technology is gaining popularity and becomes widely used. Unfortunatelly, the topology-based pathway analysis methods are not available for this type of the data. Therefore, we adapted the selected methods for RNA-Seq count matrices. Two types of adaptations were used. If a method works directly with the expression profiles (multivariable methods and TAPPA), then the count matrix is normalized and transformed either by TMM or DESeq2 method. The remaining methods use also or only the gene-level statistics like log fold-change. The differential expression analysis of genes with either \texttt{DESeq2} or \texttt{limma} package is a part of their implementation. 
+
+We will use the data from \texttt{gageData} for an example analysis. 
+
+
+<<>>=
+library(gageData)
+data(hnrnp.cnts)
+hnrnp.cnts<-hnrnp.cnts[rowSums(hnrnp.cnts)>0,]
+group<-c(rep("sample",4), rep("control",4))
+pathways<-kegg[1:10]
+@ 
+
+
+
+
+\section{TopologyGSA}
+TopologyGSA represents a multivariable method in which the expression of genes is modelled with Gausian Graphical Models with covariance matrix reflecting the pathway topology. It uses the the Iterative Proportional Scaling algorithm to estimate the covariance matrices. The testing procedure is a two-step process. First the equality of covariance matrices is testes via a likelihood ratio test. Then, when the null hypothesis of equality of covariance matrices is not rejected, the differential expression is testes via multivariate analysis of variance. On the other hand, when the convariance matrices are not equal, then Behrens-Fisher method for testing the equality of means in a two sample problem with unequal covariance matrices is employed.
+
+The method can be used with a single command
+
+<<eval=FALSE, echo=TRUE>>=
+top<-TopologyGSA(hnrnp.cnts, group, pathways[1:3], type="RNASeq", nperm=1000)
+#528 node labels mapped to the expression data
+#Average coverage 83.16538
+#0 (out of 10) pathways without a mapped node
+#Normalization method was not specified. TMM used as default
+#Acute myeloid leukemia
+#Adherens junction
+#Adipocytokine signaling pathway
+#Adrenergic signaling in cardiomyocytes
+#African trypanosomiasis
+#Alanine, aspartate and glutamate metabolism
+#Aldosterone-regulated sodium reabsorption
+#Allograft rejection
+#alpha-Linolenic acid metabolism
+
+res(top)
+#data frame with 0 columns and 1 rows
+
+
+@
+
+Apart from the expected arguments: a count data matrix, a vector of class labels and a list of pathways, the user needs to specify the \texttt{type} argument which decides on the type of the data (\texttt{"MA"} is used for expression microarray and \texttt{RNA-Seq"} for RNA-Seq data).  The others arguments are optional. By default, the \texttt{"TMM"} method is used for the normalization. The user can select \texttt{DESeq2} by setting argument \texttt{norm.method} to \texttt{"DESeq2"}.  The \texttt{nperm} argument sets the number of permutations to be used in the statistical tests. Other default settings are: both mean and variance tests are calculated, this can be changed to only variance test by setting \texttt{test="var"}. Also the node labels of pathway topologies are converted into entrezIDs. This is controlled with arguments \texttt{convert}, and \texttt{IDs}. A converstion into the gene symbols is available too. Please note, that the node labels should be the same as the rownames of count data matrix. The threshold for variance test is specified with \texttt{alpha} argument. The implementation allows also testing of all the cliques present in the graph by setting \texttt{testCliques=TRUE}. Please note that these tests may take quite a long time.
+
+Unfortunatelly, this method requires more samples than nodes in a pathway. Therefore there is an empty output in the example above.
+
+\section{DEGraph}
+Another multivariable method implemented in the package is DEGraph. This method assumes the same direction in the differential expresion of genes belonging to a pathway. It performs the regular Hotelling's T2 test in the graph-Fourier space restricted to its first $k$ components which is more powerful than test in the full graph-Fourier space or in the original space.
+
+We apply the method with
+
+<<>>=
+deg<-DEGraph(hnrnp.cnts, group, pathways, type="RNASeq")
+res(deg)[,1:4]
+@
+
+Apart from the expected arguments: a count data matrix, a vector of class labels and a list of pathways, the user needs to specify the \texttt{type} argument which decides on the type of the data (\texttt{"MA"} is used for expression microarray and \texttt{"RNA-Seq"} for RNA-Seq data).  The others arguments are optional. By default, the \texttt{"TMM"} method is used for the normalization. The user can select \texttt{DESeq2} by setting argument \texttt{norm.method} to \texttt{"DESeq2"}. The node labels of pathway topologies are automatically converted into entrezIDs. This is controlled with arguments \texttt{convert}, and \texttt{IDs}. A converstion into the gene symbols is available too. Please note, that the node labels should be the same as the rownames of count data matrix. Since, the DEGraph method runs a statistical test for each connected component of a pathway, a method for assigning a global p-value for whole pathway is needed. The user can select from three approaches: the minimum, the mean and the p-value of the biggest component. This is specified via \texttt{overall} argument. The implementation returns also a gene-level statistics of the differential expression of genes and the user can select between log fold-change (\texttt{gene.stat="logFC"}) or modified t-statistic from \texttt{limma} (\texttt{gene.stat="stats"}). These statistics are later used in the visualization of a selected pathway.
+
+
+\section{clipper}
+The last multivariable method available within this package is called clipper. This method is similar to the topologyGSA as it uses the same two-step approach. However, the Iterative Proportional Scaling algorithm was subsituted with a shrinkage procedure of James-Stein-type which additionally allows proper estimates also in the situation when number of samples is smaller than the number of genes in a pathway. The tests on a pathway-level are follwed with a search for the most affected path in the graph.
+
+The method can be applied with
+
+<<eval=FALSE, echo=TRUE>>=
+cli<-Clipper(hnrnp.cnts, group, pathways, type="RNASeq", test="mean")
+#528 node labels mapped to the expression data
+#Average coverage 83.16538
+#0 (out of 10) pathways without a mapped node
+#Normalization method was not specified. TMM used as default
+#Acute myeloid leukemia
+#Adherens junction
+#Adipocytokine signaling pathway
+#Adrenergic signaling in cardiomyocytes
+#African trypanosomiasis
+#Alanine, aspartate and glutamate metabolism
+#Alcoholism
+#Aldosterone-regulated sodium reabsorption
+#Allograft rejection
+#alpha-Linolenic acid metabolism
+res(cli)[1:2,]
+#                       alphaVar alphaMean  maxScore activation    impact                                               involvedGenes
+#Acute myeloid leukemia    0.022     0.008 18.290959  0.3782696 0.2592593 3728;4609;3728;5467;3728;595;3728;6932;3728;6934;3728;83439
+#Adherens junction         0.035     0.018  1.956012  0.1415808 0.1052632                                    4087;4088;4089;7046;7048
+#                                                                                            pathGenes
+#Acute myeloid leukemia 3728;5371;5914;861,3728;4609,3728;5467,3728;595,3728;6932,3728;6934,3728;83439
+#Adherens junction                                        2260;6615;7046;7048,4087;4088;4089;7046;7048
+@
+
+Apart from the expected arguments: a count data matrix, a vector of class labels and a list of pathways, the user needs to specify the \texttt{type} argument which decides on the type of the data (\texttt{"MA"} is used for expression microarray and \texttt{"RNA-Seq"} for RNA-Seq data).  The others arguments are optional. By default, the \texttt{"TMM"} method is used for the normalization. The user can select \texttt{DESeq2} by setting argument \texttt{norm.method} to \texttt{"DESeq2"}. The node labels of pathway topologies are automatically converted into entrezIDs. This is controlled with arguments \texttt{convert}, and \texttt{IDs}. A converstion into the gene symbols is available too. Please note, that the node labels should be the same as the rownames of count data matrix. Also, both mean and variance tests are run, this can be changed to only variance test by setting \texttt{test="var"}. The \texttt{nperm} controls the number of permutations in the statistical tests. Similarly as in topologyGSA,  the implementation allows testing of all the cliques present in the graph by setting \texttt{testCliques=TRUE}. Please note that these tests may take quite a long time.
+
+
+\section{SPIA}
+The most well-known topology-based pathway analysis method is SPIA. In there, two evidences of differential expression of a pathway are combined. The first evidence is a regular so called overrepresentation analysis in which the statistical significance of the number of differentially expressed genes belonging to a pathway is assessed. The second evidence reflects the pathway topology and it is called the pertubation factor. The authors assume that a differentially expressed gene at the begining of a pathway topology (e.g. a receptor in a signaling pathway) has a stronger effect on the functionality of a pathway than a differentially expressed gene at the end of a pathway (e.g. a transcription factor in a signaling pathway). The pertubation factors of all genes are calculated from a system of linear equations and then combined within a pathway. The two evidences in a form of p-values are finally combined into a global p-value, which is used to rank the pathways.
+
+<<>>=
+spi<-SPIA(hnrnp.cnts, group, pathways, type="RNASeq", logFC.th=-1)
+res(spi)
+@
+
+Apart from the expected arguments: a count data matrix, a vector of class labels and a list of pathways, the user needs to specify the \texttt{type} argument which decides on the type of the data (\texttt{"MA"} is used for expression microarray and \texttt{"RNA-Seq"} for RNA-Seq data).  The others arguments are optional. By default, the \texttt{"limma"} method is used for the differential expression analysis on gene-level. The user can select \texttt{DESeq2} by setting argument \texttt{test} to \texttt{"DESeq2"}. The node labels of pathway topologies are automaticaly converted into entrezIDs. This is controlled with \texttt{IDs} argument. A converstion into the gene symbols is available too. Please note, that the node labels should be the same as the rownames of count data matrix. The default thresholds for the differential expression analysis of genes  are set with arguments \texttt{logFC.th} and \texttt{p.val.th}. The user can omit one of these criteria by setting the agrument negative value, as is shown also in the example. The implementation returns also a gene-level statistics of the differential expression of genes and the user can select between log fold-change (\texttt{gene.stat="logFC"}) or test statistic (\texttt{gene.stat="stats"}). These statistics are later used in the visualization of a selected pathway.
+
+\section{TAPPA}
+TAPPA was among the first topology-based pathway analysis methods. It was inspired in chemointformatics and their models for predicting the structure of molecules. In TAPPA, the gene expression values are standardized and sigma-transformed within a samples. Then, a pathway is seen a molecule, individual genes as atoms and the energy of a molecule is a score defined for one sample. This score is called Pathway Connectivity Index. The difference of expression is assessed via a common univariable two sample test - Mann-Whitney in our implemetation.
+
+<<>>=
+tap<-TAPPA(hnrnp.cnts, group, pathways, type="RNASeq")
+res(tap)
+@
+
+Apart from the expected arguments: a count data matrix, a vector of class labels and a list of pathways, the user needs to specify the \texttt{type} argument which decides on the type of the data (\texttt{"MA"} is used for expression microarray and \texttt{"RNA-Seq"} for RNA-Seq data).  The others arguments are optional. By default, the \texttt{"TMM"} method is used for the normalization. The user can select \texttt{DESeq2} by setting argument \texttt{norm.method} to \texttt{"DESeq2"}. The node labels of pathway topologies are automatically converted into entrezIDs. This is controlled with \texttt{IDs} argument. A converstion into the gene symbols is available too. Please note, that the node labels should be the same as the rownames of count data matrix. The user can also specified whether the normalization step (standardization and sigma-transformation) should be perfomed (\texttt{normalize=TRUE}). If \texttt{verbose=TRUE}, function prints out the titles of pathways as their are analysed. The implementation returns also a gene-level statistics of the differential expression of genes and the user can select between log fold-change (\texttt{gene.stat="logFC"}) or test statistic (\texttt{gene.stat="stats"}). These statistics are later used in the visualization of a selected pathway.
+
+
+\section{TBS}
+TBS is another method that works with gene-level statistics and a list of differentially expresed genes. The pathway topology is incorporated as the number of downstream differentially expressed genes. The gene-level log fold-changes are weigted by this numeber and sumed up into a pathway-level score. A statistical significance is assessed by a permutations of genes.
+
+<<eval=FALSE, echo=TRUE>>=
+tbs<-TBS(hnrnp.cnts, group, pathways, type="RNASeq",  logFC.th=-1, nperm=100)
+#528 node labels mapped to the expression data
+#Average coverage 83.16538
+#0 (out of 10) pathways without a mapped node
+#test was not specified. 'vstlimma' used as default
+#Found 5702 differentially expressed genes
+#Preparing permutation table and downstream list
+#Observed scores..
+#Random scores..
+#100
+#Normalization and p-values...
+res(tbs)
+#                                            TBS.obs.norm    p      p.adj
+#Acute myeloid leukemia                        -1.6325413 0.05 0.06250000
+#Adherens junction                             -3.9416308 0.01 0.01666667
+#Adipocytokine signaling pathway               -3.1989858 0.00 0.00000000
+#Adrenergic signaling in cardiomyocytes       -16.1777366 0.00 0.00000000
+#African trypanosomiasis                       -4.0834773 0.00 0.00000000
+#Alanine, aspartate and glutamate metabolism    0.0137086 0.44 0.48888889
+#Alcoholism                                    -4.1997338 0.00 0.00000000
+#Aldosterone-regulated sodium reabsorption      1.9996012 1.00 1.00000000
+#Allograft rejection                           -3.4004380 0.01 0.01666667
+#alpha-Linolenic acid metabolism               -2.6720346 0.02 0.02857143                                                0.0000000
+@
+
+Arguments of this functions are almost the same as in \texttt{SPIA}. Apart from the expected arguments: a gene expression data matrix, a vector of class labels and a list of pathways, the user needs to specify the \texttt{type} argument which decides on the type of the data (\texttt{"MA"} is used for expression microarray and \texttt{"RNA-Seq"} for RNA-Seq data).  The others arguments are optional. By default, the \texttt{"limma"} method is used for the differential expression analysis on gene-level. The user can select \texttt{DESeq2} by setting argument \texttt{test} to \texttt{"DESeq2"}. The node labels of pathway topologies are automatically converted into entrezIDs. This is controlled with \texttt{IDs} argument. A converstion into the gene symbols is available too. Please note, that the node labels should be the same as the rownames of count data matrix.  The default thresholds for the differential expression analysis of genes are set with arguments \texttt{logFC.th} and \texttt{p.val.th}. The user can omit one of these criteria by setting the agrument negative value, as is shown also in the example. The implementation returns also a gene-level statistics of the differential expression of genes and the user can select between log fold-change (\texttt{gene.stat="logFC"}) or test statistic (\texttt{gene.stat="stats"}). These statistics are later used in the visualization of a selected pathway. The last argument \texttt{nperm} controls the number of permutations.
+
+\section{PWEA}
+The last method available in this package is called PathWay Enrichment Analysis (PWEA). This is actually a weigthed form of common Gene Set Enrichment Analysis (GSEA). The weights are called Topological Influence Factor (TIF) and are defined as a geometic mean of ratios of Pearson's correlation coefficient and the distance of two genes in a pathway. The weights of genes outside a pathway are assigned randomly from normal distribution with parameters estimated from the weights of genes in all pathways. A statistical significance of a pathway is assessed via Kolmogorov-Simirnov-like test statistic comparing two cumulative distribution functions with class label permutations.
+
+<<eval=FALSE, echo=TRUE>>=
+pwe<-PWEA(hnrnp.cnts, group, pathways, type="RNASeq", nperm=100)
+#528 node labels mapped to the expression data
+#Average coverage 83.16538
+#0 (out of 10) pathways without a mapped node
+#test was not specified. 'vstlimma' used as default
+#Preparing data..
+#1  2  3  4  5  6  7  8  9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51  52  53  54  55  56  57  58  59  60  61  62  63  64  65  66  67  68  69  70  71  72  73  74  75  76  77  78  79  80  81  82  83  84  85  86  87  88  89  90  91  92  93  94  95  96  97  98  99  100  Processing gene set:
+#Acute myeloid leukemia
+#Adherens junction
+#Adipocytokine signaling pathway
+#Adrenergic signaling in cardiomyocytes
+#African trypanosomiasis
+#Alanine, aspartate and glutamate metabolism
+#Alcoholism
+#Aldosterone-regulated sodium reabsorption
+#Allograft rejection
+#alpha-Linolenic acid metabolism
+res(pwe)
+#                                                   ES    p     p.adj
+#Acute myeloid leukemia                      0.3526104 0.29 0.4142857
+#Adherens junction                           0.3829831 1.00 1.0000000
+#Adipocytokine signaling pathway             0.3102945 1.00 1.0000000
+#Adrenergic signaling in cardiomyocytes      0.3611207 0.20 0.3333333
+#African trypanosomiasis                     0.3272899 0.20 0.3333333
+#Alanine, aspartate and glutamate metabolism 0.2720946 0.20 0.3333333
+#Alcoholism                                  0.4708293 0.86 1.0000000
+#Aldosterone-regulated sodium reabsorption   0.3951037 0.20 0.3333333
+#Allograft rejection                         0.9421248 0.03 0.3000000
+#alpha-Linolenic acid metabolism             0.6587026 0.20 0.3333333
+@
+
+Apart from the expected arguments: a count data matrix, a vector of class labels and a list of pathways, the user needs to specify the \texttt{type} argument which decides on the type of the data (\texttt{"MA"} is used for expression microarray and \texttt{"RNA-Seq"} for RNA-Seq data).  The others arguments are optional. By default, the \texttt{"limma"} method is used for the differential expression analysis on gene-level and \texttt{TMM} for data normalization prior to calculating the TIFs. The user can select \texttt{DESeq2} by setting argument \texttt{test} to \texttt{"DESeq2"}.  The node labels of pathway topologies are automaticaly converted into entrezIDs. This is controlled with \texttt{IDs} argument. A converstion into the gene symbols is available too. Please note, that the node labels should be the same as the rownames of count data matrix. The \texttt{alpha} parameter sets a threshold for gene weights. The purpose of this filtering is to reduce the possiblity that a weight of a gene that is tighly correlated with a few genes are lowered by the weak correlation with other genes in a pathway.The implementation returns also a gene-level statistics of the differential expression of genes and the user can select between log fold-change (\texttt{gene.stat="logFC"}) or test statistic (\texttt{gene.stat="stats"}). These statistics are later used in the visualization of a selected pathway. The \texttt{nperm}  argument controls the number of permutations.
+
+\chapter{Outputs and visualization of the results for one pathway}
+
+All the functions mentioned in this vignette return an object of class \texttt{topResult}. It is a list with three slots. The first one is called \texttt{res} and contains a data frame of the results for all the pathways. The actual informations there differ among the methods and are described in the manual. The second slot is called \texttt{topo.sig} and it is a list of  topological significances of genes in pathways. The term topologial significance means scores used to measure the importance of a gene in a pathway. The higher the score the more important gene. It is \texttt{NULL} for TAPPA and DEGraph method, because they do not provide any measure of this kind. The last slot contains the log fold-changes or test statistics of differential expression at gene level. They are necessary in the \texttt{plot} function for all the methods except TopologyGSA and Clipper.
+
+
+ The \texttt{plot()} function has three necessarry arguments when it is to be applied on \texttt{topResult} object. The first one is an output from any of the methods. The second one is either a name of a pathway or its number in a list of pathways. And the last one is a list of pathways used in the analysis.
+
+The final visualization of the results for one pathway is method specific. Three arguments that are common to all methods are:
+\begin{itemize}
+\item \texttt{IDs} - the type of gene labels in the original data, \texttt{"entrez"} by default
+\item \texttt{graphIDS} - the type of gene labels to be used in plot, \texttt{"symbol"} by default
+\item \texttt{layout} - the layout of the graph from \texttt{Rgraphviz} package, \texttt{"dot"} by default, other possibilities are e.g. \texttt{"neato"} or \texttt{"twopi"}
+\end{itemize}
+
+The significant cliques are enhanced in the results of TopologyGSA and Clipper. Since the whole analysis with these method is done on transformed topology (moralized then triangulated graphs), the transformed topology is also drawn in the visualization. The user can specify the color which used for edges between nodes from a significant clique (default value is \texttt{cli.color="red"} and can be either a character or a function that returns a color pallette) and the color of nodes (default value is \texttt{cli.node.color="white"}. The \texttt{alpha} controls the significance threshold for the cliques. If \texttt{add.legend=TRUE} then a legend is drawn containing the colors of edges of individual cliques, their genes and p-value. The \texttt{intersp} can be used to adjust the space between items of legened.
+
+<< fig=true, width=8, height=7>>=
+library(gageData)
+data(hnrnp.cnts)
+
+group<-c(rep("sample",4), rep("control",4))
+hnrnp.cnts<-hnrnp.cnts[rowSums(hnrnp.cnts)>0,]
+cli<-Clipper(hnrnp.cnts, group, kegg[1:2], type="RNASeq", testCliques=TRUE)
+
+plot(cli,1, kegg)
+
+@
+
+
+
+In the visualization of the results from TBS, PWEA or SPIA method, the nodes are colored accoring to the selected gene-level statistic and the size of node reflects the topological significance of a node. Because TAPPA and DEGraph do not provide any specific topological or statistical measure at gene-level, only the coloring of the nodes according to gene-level statistics is used. The user can specify the number of breaks for gene statistics and topological significance of genes (default values are 100 and 5, \texttt{breaks=c(100,5)}), colors in the pallete for the gene statistics (default is \texttt{pallete.colors=c("blue","white", "red")} and a color for missing nodes \texttt{na.col="grey"}. The \texttt{stats} argument controls the label of the gene statistics and \texttt{title} controls whether the name of a pathway and its p-value should be written as a title. The user can also adjust the size of the nodes (\texttt{nodesize}) and font (\texttt{fontsize})
+
+
+
+
+<<eval=FALSE, echo=TRUE,fig=true, width=9, height=7>>=
+library(gageData)
+data(hnrnp.cnts)
+
+group<-c(rep("sample",4), rep("control",4))
+hnrnp.cnts<-hnrnp.cnts[rowSums(hnrnp.cnts)>0,]
+spi<-SPIA(hnrnp.cnts, group, kegg[45:50], type="RNASeq", logFC.th=-1)
+plot(spi,"Complement and coagulation cascades", kegg[45:50], fontsize=50)
+
+@
+\begin{figure}[tbp]
+\centering
+\includegraphics{plot}
+\caption{}
+\end{figure}
+
+
+\begin{thebibliography}{}
+
+\bibitem[Al-Haj~Ibrahim {\em et~al.}(2012)]{Ibrahim}
+Al-Haj~Ibrahim, M., Jassim, S., Cawthorne, M.~A., and Langlands, K. (2012).
+ A topology-based score for pathway enrichment.
+ {\em J Comput Biol\/}.
+
+\bibitem[Anders and Huber(2010)]{DESeq}
+Anders, S. and Huber, W. (2010).
+ Differential expression analysis for sequence count data.
+ {\em Genome Biology\/}, {\bf 11}(10), R106.
+
+\bibitem[Dillies {\em et~al.}(2013)]{Dillies}
+Dillies, M.-A., Rau, A., Aubert, J., Hennequet-Antier, C., Jeanmougin, M.,
+  Servant, N., Keime, C., Marot, G., Castel, D., Estelle, J., Guernec, G.,
+  Jagla, B., Jouneau, L., Laloe, D., Le~Gall, C., Schaeffer, B., Le~Crom, S.,
+  Guedj, M., and Jaffrezic, F. (2013).
+ A comprehensive evaluation of normalization methods for illumina
+  high-throughput rna sequencing data analysis.
+ {\em Briefings in Bioinformatics\/}, {\bf 14}(6), 671--683.
+
+\bibitem[Draghici {\em et~al.}(2007)]{Draghici}
+Draghici, S., Khatri, P., Tarca, A.~L., Amin, K., Done, A., Voichita, C.,
+  Georgescu, C., and Romero, R. (2007).
+ A systems biology approach for pathway level analysis.
+ {\em Genome Research\/}, {\bf 17}(10), 000.
+
+\bibitem[Gao and Wang(2007)]{TAPPA}
+Gao, S. and Wang, X. (2007).
+ Tappa: topological analysis of pathway phenotype association.
+ {\em Bioinformatics\/}, {\bf 23}(22), 3100--3102.
+
+\bibitem[Hung {\em et~al.}(2010)]{Hung}
+Hung, J.-H., Whitfield, T., Yang, T.-H., Hu, Z., Weng, Z., and DeLisi, C.
+  (2010).
+ Identification of functional modules that correlate with phenotypic
+  difference: the influence of network topology.
+ {\em Genome Biology\/}, {\bf 11}(2), R23.
+
+\bibitem[{Jacob} {\em et~al.}(2010)]{Jacob}
+{Jacob}, L., {Neuvial}, P., and {Dudoit}, S. (2010).
+ {Gains in Power from Structured Two-Sample Tests of Means on Graphs}.
+ {\em ArXiv e-prints\/}.
+
+\bibitem[Martini {\em et~al.}(2012)]{clipper}
+Martini, P., Sales, G., Massa, M.~S., Chiogna, M., and Romualdi, C. (2012).
+ Along signal paths: an empirical gene set approach exploiting pathway
+  topology.
+ {\em Nucleic Acids Research\/}.
+
+\bibitem[Massa {\em et~al.}(2010)]{Massa}
+Massa, M., Chiogna, M., and Romualdi, C. (2010).
+ Gene set analysis exploiting the topology of a pathway.
+ {\em BMC Systems Biology\/}, {\bf 4}(1), 121.
+
+\bibitem[{R Core Team}(2014)]{R}
+{R Core Team} (2014).
+ {\em R: A Language and Environment for Statistical Computing\/}.
+ R Foundation for Statistical Computing, Vienna, Austria.
+
+\bibitem[Robinson and Oshlack(2010]{TMM}
+Robinson, M. and Oshlack, A. (2010).
+ A scaling normalization method for differential expression analysis
+  of rna-seq data.
+ {\em Genome Biology\/}, {\bf 11}(3), R25.
+
+\bibitem[Sales {\em et~al.}(2012)]{graphite}
+Sales, G., Calura, E., Cavalieri, D., and Romualdi, C. (2012).
+ graphite - a bioconductor package to convert pathway topology to gene
+  network.
+ {\em BMC Bioinformatics\/}, {\bf 13}(1), 20.
+
+\bibitem[Tarca {\em et~al.}(2009)]{Tarca}
+Tarca, A.~L., Draghici, S., Khatri, P., Hassan, S.~S., Mittal, P., Kim, J.-s.,
+  Kim, C.~J., Kusanovic, J.~P., and Romero, R. (2009).
+ A novel signaling pathway impact analysis.
+ {\em Bioinformatics\/}, {\bf 25}(1), 75--82.
+
+\end{thebibliography}
+
+
+
+\end{document}
