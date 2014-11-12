@@ -6,7 +6,7 @@
 \documentclass[letterpaper]{report}
 
 \title{ToPASeq: an R package for topology-based pathway analysis of microarray and RNAseq data}
-\author{Ivana Ihnatova}
+\author{Ivana Ihnatova, Eva Budinska}
 
 \begin{document}
 
