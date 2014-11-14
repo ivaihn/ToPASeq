@@ -5,10 +5,12 @@
 
 \documentclass[letterpaper]{report}
 
-\title{ToPASeq: an R package for topology-based pathway analysis of microarray and RNAseq data}
-\author{Ivana Ihnatova, Eva Budinska}
+
 
 \begin{document}
+
+\title{ToPASeq: an R package for topology-based pathway analysis of microarray and RNAseq data}
+\author{Ivana Ihnatova, Eva Budinska \thanks{This work was supported by the project INBIOR (CZ.1.07/2.3.00/20.0042) co-financed by the European Social Fund and the state budget of the Czech Republic.}}
 
 \maketitle
 \tableofcontents
