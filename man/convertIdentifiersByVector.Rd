@@ -8,7 +8,7 @@ Function to convert identifiers in pathways by user specified vector
 The function converts identifiers of nodes in a pathway. It uses the user specified named vector for the conversion. 
 }
 \usage{
-convertIdentifiersByVector(pathway, conv.table, id.type)
+convertIdentifiersByVector(pathway, conv.table, id.type="unknown")
 }
 
 \arguments{

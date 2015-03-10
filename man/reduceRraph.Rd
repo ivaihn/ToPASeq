@@ -21,7 +21,7 @@ A named list of reductions to be maded.
 }
 
 \value{
-A pathway
+A \code{pathway}
 }
 \author{
 Ivana Ihnatova

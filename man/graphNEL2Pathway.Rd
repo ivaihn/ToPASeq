@@ -1,14 +1,14 @@
-\name{graphNEL2Pathway}
-\alias{graphNEL2Pathway}
+\name{graphNEL2pathway}
+\alias{graphNEL2pathway}
 
 \title{
 Function to coerce a graphNEL to a pathway
 }
 \description{
-The function coerces a graphNEL to a pathway. It attempts to recover the edge types from "edgeType" attribute of \code{edgeData}. If it is not present \code{"process(indirect effect)"} is used in order to preserve directionality. 
+The function coerces a graphNEL to a pathway. It attempts to recover the edge types from \code{"edgeType"} attribute of \code{edgeData}. The result contains only the edge types present in the graph. If the \code{edgeData} do not contain this attribute, then \code{"process(indirect effect)"} is used in order to preserve directionality. 
 }
 \usage{
-graphNEL2Pathway(graph, name = "pathway", ident = "unknown", database = "unknown", species = "unknown", date = NULL)
+graphNEL2pathway(graph, name = "pathway", ident = "unknown", database = "unknown", species = "unknown", date = NULL)
 }
 
 \arguments{
@@ -31,9 +31,7 @@ A character, the species to which the topology belong
 A date, the date the topology was created
 }
 }
-\note{
-Source and destination nodes may be swaped when coercing \code{pathway} to \code{graphNEL} via \code{pathwayGraph} and back. 
-}
+
 
 \value{
 A coerced \code{pathway}
@@ -50,11 +48,11 @@ Ivana Ihnatova
 \examples{
 kegg[[1]]
 pathwayGraph(kegg[[1]])
-graphNEL2Pathway(pathwayGraph(kegg[[1]]))
+graphNEL2pathway(pathwayGraph(kegg[[1]]))
 
 set.seed(123)
 rg <- randomEGraph(LETTERS[1:20], edges = 30)
-p<-graphNEL2Pathway(rg)
+p<-graphNEL2pathway(rg)
 p
 head(edges(p))
 }

@@ -1,14 +1,15 @@
-\name{AdjacencyMatrix2Pathway}
-\alias{AdjacencyMatrix2Pathway}
+\name{AdjacencyMatrix2pathway}
+\alias{AdjacencyMatrix2pathway}
 
 \title{
 Function to coerce an adjacency matrix to a pathway
 }
 \description{
-The function coerces an adjacency matrix to a pathway. Two types of matrices are allowed. The first one, where \code{1} denotes an edge between to nodes and \code{0} otherwise. This matrix is coerced into a simply pathway were type of all edges is set to \code{"process"}. There are three values present in the second type: \code{1} for an activation, \code{-1} for an inhibition and \code{0} otherwise (=no edge between two nodes). In this case, activations are set to \code{"process(activation)"} and inhibition to \code{"process(inhibition)"}. The symetricity of the matrix is used to decide between directed and undirected graph. Symmetric matrix is expected for undirected graph.
+The function coerces an adjacency matrix to a pathway. Two types of matrices are allowed. The first one, where \code{1} denotes an edge between two nodes and \code{0} otherwise. This matrix is coerced into a simply pathway were type of all edges is set to \code{"process"}. The second type of adjacency matrix contains: \code{1} for an activation, \code{-1} for an inhibition and \code{0} otherwise (=no edge between two nodes). In this case, activations are set to \code{"process(activation)"} and inhibition to \code{"process(inhibition)"}. The symetricity of the matrix is used to decide between directed and undirected graph. Symmetric matrix is expected for undirected graph and only the lower triangle of the matrix is used to extract the edges of the graph.
 }
+
 \usage{
-AdjacencyMatrix2Pathway(adjmat, name = "pathway", ident = "unknown", database = "unknown", species = "unknown", date = NULL)
+AdjacencyMatrix2pathway(adjmat, name = "pathway", ident = "unknown", database = "unknown", species = "unknown", date = NULL)
 }
 \arguments{
   \item{adjmat}{
@@ -43,11 +44,11 @@ Ivana Ihnatova
 \examples{
 genes<-paste("gene", 1:10, sep="")
 adjmat<-matrix(sample(c(0,0,0,0,1), 100, TRUE),10,10, dimnames=list(genes,genes))
-p<-AdjacencyMatrix2Pathway(adjmat)
+p<-AdjacencyMatrix2pathway(adjmat)
 head(edges(p))
 
 adjmat<-matrix(sample(c(0,0,0,0,1,-1), 100, TRUE),10,10, dimnames=list(genes,genes))
-p<-AdjacencyMatrix2Pathway(adjmat)
+p<-AdjacencyMatrix2pathway(adjmat)
 head(edges(p))
 
 }

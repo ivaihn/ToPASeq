@@ -2,10 +2,20 @@ export(
 
 SPIA, DEGraph, Clipper, TBS, PWEA, TAPPA, TopologyGSA,
 res, topo.sig, degtable,
+AdjacencyMatrix2pathway,
+graphNEL2pathway,
+estimateCF,
+reduceGraph,
 convertIdentifiersByVector,
-AdjacencyMatrix2Pathway, graphNEL2Pathway,
-reduceGraph
+KEGG2pathway
 )
+
+useDynLib(ToPASeq2)
+
+exportMethods(intersection, join, union, subGraph, clearNode, removeEdge, removeNode, addEdge, addNode, changeDirection, changeInteraction,"nodes<-")
+
+exportMethods(degree, numNoEdges, mostEdges, acc, connComp, edges, isAdjacent, isDirected, isConnected, edgemode, numEdges, numNodes, edgeNames)
+
 S3method(print, topResult)
 S3method(topo.sig, topResult)
 S3method(degtable, topResult)
@@ -16,7 +26,7 @@ S3method(plot,topResult)
 import(graphite, gRbase, graph, locfit)
 importFrom(DESeq2, DESeqDataSetFromMatrix, DESeq, results, estimateSizeFactors, estimateDispersions, nbinomWaldTest, varianceStabilizingTransformation)
 importFrom(GenomicRanges, assay, colData, "colData<-")
-
+importFrom(KEGGgraph, parseKGML)
 importFrom(igraph, shortest.paths,igraph.from.graphNEL, get.all.shortest.paths)
 importFrom(R.utils, reassignInPackage)
 importFrom(edgeR,DGEList, calcNormFactors)
