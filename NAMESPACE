@@ -44,4 +44,4 @@ importMethodsFrom(graph, edgeData, edgeDataDefaults)
 
 importFrom(qpgraph,qpIPF)
 importFrom(RBGL,johnson.all.pairs.sp)
-importFrom(clipper, easyClip, pathQ)
+importFrom(clipper, easyClip, pathQ, cliqueMeanTest, cliqueVarianceTest)

@@ -294,58 +294,69 @@ plotCliques<-function(info, alpha = 0.05, color="red", node.color="white", nodes
  }
 
 ########################
-plot.topResult<-function(x, which, graphs, stats="logFC", convert=TRUE, IDs="entrez", graphIDs="symbol", reduction=list(), combnfunction=mean, logical=NULL, sig.th=0.1, title=TRUE, breaks=c(100,5),
-  pallete.colors=c("blue","white", "red"), na.col="grey", cli.color="red", cli.node.color="white", layout="dot", nodesize=1, fontsize=14, alpha=0.05, add.legend=TRUE, intersp=0.5, ent=3,  ...  ){
-#shift, tsig
+plot.topResult<-function(x, which, graphs, stats="logFC", convert=TRUE, IDs="entrez", graphIDs="symbol", col.lim=NULL,reduction=list(), agg.fun=function(x) mean(x, na.rm=TRUE),
+ logical=NULL, sig.th=0.1, title=TRUE, cex.main, breaks=c(100,5),
+  pallete.colors=c("blue","white", "red"), na.col="grey87", cli.color="red", layout="dot", nodesize=1, fontsize=14, 
+  alpha=0.05, add.legend=TRUE, statName="Log fold change", ...  ){
 
-if (!require("Rgraphviz")) stop("Rgraphviz package is missing, please install it")
+
+
+#if (!require("Rgraphviz")) stop("Rgraphviz package is missing, please install it")
 res<-x
 
+ g<-graphs[[which]]
+ if (convert) gc<-convertIdentifiers(graphs[[which]],IDs) else gc<-g
+ gp<-convertIdentifiers(graphs[[which]],graphIDs)
+ deg.table<-x$degtable
+ 
+ sigpal<-colorRampPalette(pallete.colors)
+ na.col<-colorRampPalette(c(na.col))(1)
+
+ defaultEdgeAttrs<-makeDefaultEdgeData()
+ 
 if ("topResultC" %in% class(res)) {
+ cliq<-res$topo.sig[[which]]
+ NodeTable<-makeNodeTable(g, gc, gp, breaks, deg.table, sigpal, tsig.whole, tsig, mis.col=na.col, p.th=alpha, col.lim=col.lim )
+ EdgeList<-makeEdgeList(gp, defaultEdgeAttrs)
 
-if (convert) 
-   node.names<-cbind(nodes(convertIdentifiers(graphs[[which]], IDs)) , nodes(convertIdentifiers(graphs[[which]], graphIDs))  ) else
-   node.names<-cbind(nodes(graphs[[which]]), nodes(graphs[[which]]))
-   
-if (is.null(res$topo.sig)) stop("Cliques were not tested, please re-run your analysis with testCliques=TRUE")
-cliques<-res$topo.sig[[which]][[2]]
-cliques<-lapply(cliques, function(x) node.names[match(x,node.names[,1] ),2])
+cols<-cli.color
+ att<-adjustAttrCli(gc, NodeTable, EdgeList, cliq[[1]], cliq[[2]], cols, alpha, remNodes=NULL)
 
-
-if (convert) 
-   graph<-pathwayGraph(convertIdentifiers(graphs[[which]],graphIDs)) else
-   graph<-pathwayGraph(graphs[[which]])
-  
-graph<-triangulate(moralize(graph))
-
-info<-list(p.value=res$topo.sig[[which]][[1]], 
-           cliques=cliques, 
-    graph=graph)
-
-
-
-plotCliques(info, alpha = 0.05, color=cli.color, node.color=cli.node.color,  nodesize=nodesize, fontsize=fontsize, add.legend=add.legend, layout=layout, intersp=intersp, ent=ent) 
-if (title) {headline(res,which, TRUE)}
+xxg<-renderOrig(gp, NodeTable, EdgeList, nodesize, fontsize)
+xxred<-renderReduced( gp, reduction, att[[1]], att[[2]], xxg, fontsize)
+drawGraph(xxred, res, which, NodeTable, nodesize, fontsize, statName=statName, cex.main=cex.main, legend=add.legend)
 }
 
-
-if ("topResultW" %in% class(res)) {
- shift<-res$degtest; 
- tsig<-res$topo.sig[[which]][1,]; 
+if ("topResultW" %in% class(res) ){
+tsig<-res$topo.sig[[which]][1,]; 
  if (length(tsig)==0) stop("This pathway was not analysed") 
  tsig.whole<-unlist(sapply(res$topo.sig, function(x) x[1,]))
-plotGraphW(res, which, graphs, convert,  IDs, graphIDs, reduction, combnfunction, logical, sig.th, pallete.colors, na.col,breaks, layout, nodesize, fontsize, shift, tsig, tsig.whole, stats, title)
-
-}
-
-if ("topResultE" %in% class(res)) {
-shift<-res$degtest
-if (convert) nod<-nodes(convertIdentifiers(graphs[[which]],IDs)) else
-   nod<-nodes(graphs[[which]])
+ }
+if ("topResultE" %in% class(res) ) {
+nod<-nodes(graphs[[which]])
 tsig<-setNames(rep(1, length(nod)), nod)
 tsig.whole<-rep(1, 100)
-plotGraphW(res, which, graphs, convert, IDs, graphIDs, reduction, combnfunction, logical, sig.th, pallete.colors, na.col,breaks, layout, nodesize, fontsize, shift, tsig, tsig.whole, stats, title)
 }
+ 
+if ("topResultW" %in% class(res) | "topResultE" %in% class(res) ) {
+ 
+NodeTable<-makeNodeTable(g, gc, gp, breaks,  deg.table, sigpal, tsig.whole, tsig, col.lim=col.lim)
+ EdgeList<-makeEdgeList(gp, defaultEdgeAttrs)
+ if (length(reduction)>0) {gpr<-reduceGraph(gp, reduction)} else gpr<-gp
+ 
+ NodeTable.red<-applyReduction(reduction, NodeTable, agg.fun)
+ EdgeList.red<-makeEdgeList(gpr, defaultEdgeAttrs)
+ 
+ if (logical) {
+ stats<-setNames(as.numeric(NodeTable.red$nodeStat), NodeTable.red$namesPlot)
+ att<-adjustAttr(gpr, NodeTable.red, EdgeList.red, stats, cols=c("black","red", "grey87"), remNodes="white")
+ } else att<-list(NodeTable, EdgeList)
+ 
+ xxg<-renderOrig(gp, NodeTable, EdgeList, nodesize, fontsize)
+ xxred<-renderReduced( gp, reduction, att[[1]], att[[2]], xxg, fontsize)
+ drawGraph(xxred, res, which, NodeTable, nodesize, fontsize, statName=statName, cex.main=cex.main, col.lim=col.lim, legend=add.legend)
+}
+
 
 
 

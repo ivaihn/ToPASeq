@@ -328,7 +328,7 @@ We apply the method with
 
 <<>>=
 deg<-DEGraph(hnrnp.cnts, group, pathways, type="RNASeq")
-res(deg)[[1]][,1:4]
+res(deg)[[1]][[1]]
 @
 
 Apart from the expected arguments: a count data matrix, a vector of class labels and a list of pathways, the user needs to specify the \texttt{type} argument which decides on the type of the data (\texttt{"MA"} is used for expression microarray and \texttt{"RNA-Seq"} for RNA-Seq data).  The others arguments are optional. By default, the \texttt{"TMM"} method is used for the normalization. The user can select \texttt{DESeq2} by setting argument \texttt{norm.method} to \texttt{"DESeq2"}. The node labels of pathway topologies are automatically converted into entrezIDs. This is controlled with arguments \texttt{convert}, and \texttt{IDs}. A converstion into the gene symbols is available too. Please note, that the node labels should be the same as the rownames of count data matrix. Since, the DEGraph method runs a statistical test for each connected component of a pathway, a method for assigning a global p-value for whole pathway is needed. The user can select from three approaches: the minimum, the mean and the p-value of the biggest component. This is specified via \texttt{overall} argument. The implementation returns also a gene-level statistics of the differential expression of genes and the user can select between log fold-change (\texttt{gene.stat="logFC"}) or modified t-statistic from \texttt{limma} (\texttt{gene.stat="stats"}). These statistics are later used in the visualization of a selected pathway.
@@ -341,10 +341,12 @@ The method can be applied with
 
 <<eval=FALSE, echo=TRUE>>=
 cli<-Clipper(hnrnp.cnts, group, pathways, type="RNASeq", method="mean")
-#528 node labels mapped to the expression data
-#Average coverage 83.16538
+#530 node labels mapped to the expression data
+#Average coverage 82.98681 %
 #0 (out of 10) pathways without a mapped node
-#Normalization method was not specified. TMM used as default
+#1  pathways were filtered out
+#Analysing pathway:
+#
 #Acute myeloid leukemia
 #Adherens junction
 #Adipocytokine signaling pathway
@@ -355,13 +357,11 @@ cli<-Clipper(hnrnp.cnts, group, pathways, type="RNASeq", method="mean")
 #Aldosterone-regulated sodium reabsorption
 #Allograft rejection
 #alpha-Linolenic acid metabolism
-res(cli)[[1]][1:2,]
-#                       alphaVar alphaMean  maxScore activation    impact                                               involvedGenes
-#Acute myeloid leukemia    0.022     0.008 18.290959  0.3782696 0.2592593 3728;4609;3728;5467;3728;595;3728;6932;3728;6934;3728;83439
-#Adherens junction         0.035     0.018  1.956012  0.1415808 0.1052632                                    4087;4088;4089;7046;7048
-#                                                                                            pathGenes
-#Acute myeloid leukemia 3728;5371;5914;861,3728;4609,3728;5467,3728;595,3728;6932,3728;6934,3728;83439
-#Adherens junction                                        2260;6615;7046;7048,4087;4088;4089;7046;7048
+res(cli)$results[[1]][1:2,]
+#                       alphaVar alphaMean mean.q.value var.q.value
+#Acute myeloid leukemia    0.026     0.010        0.016       0.033
+#Adherens junction         0.030     0.009        0.016       0.033
+
 @
 
 Apart from the expected arguments: a count data matrix, a vector of class labels and a list of pathways, the user needs to specify the \texttt{type} argument which decides on the type of the data (\texttt{"MA"} is used for expression microarray and \texttt{"RNA-Seq"} for RNA-Seq data).  The others arguments are optional. By default, the \texttt{"TMM"} method is used for the normalization. The user can select \texttt{DESeq2} by setting argument \texttt{norm.method} to \texttt{"DESeq2"}. The node labels of pathway topologies are automatically converted into entrezIDs. This is controlled with arguments \texttt{convert}, and \texttt{IDs}. A converstion into the gene symbols is available too. Please note, that the node labels should be the same as the rownames of count data matrix. Also, both mean and variance tests are run, this can be changed to only variance test by setting \texttt{method="var"}. The \texttt{nperm} controls the number of permutations in the statistical tests. Similarly as in topologyGSA,  the implementation allows testing of all the cliques present in the graph by setting \texttt{testCliques=TRUE}. Please note that these tests may take quite a long time.
@@ -472,7 +472,7 @@ The final visualization of the results for one pathway is method specific. Three
 
 The significant cliques are enhanced in the results of TopologyGSA and Clipper. Since the whole analysis with these method is done on transformed topology (moralized then triangulated graphs), the transformed topology is also drawn in the visualization. The user can specify the color which used for edges between nodes from a significant clique (default value is \texttt{cli.color="red"} and can be either a character or a function that returns a color pallette) and the color of nodes (default value is \texttt{cli.node.color="white"}. The \texttt{alpha} controls the significance threshold for the cliques. If \texttt{add.legend=TRUE} then a legend is drawn containing the colors of edges of individual cliques, their genes and p-value. The \texttt{intersp} can be used to adjust the space between items of legened.
 
-<< fig=true, width=8, height=7>>=
+<< fig=true, width=8, height=7, eval=FALSE>>=
 library(gageData)
 data(hnrnp.cnts)
 

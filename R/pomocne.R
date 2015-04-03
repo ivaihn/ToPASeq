@@ -152,3 +152,56 @@ buildGraphNEL<-function(nodes, edges, sym)
     }
     return(g)
 }
+
+#Rgraphviz
+getRenderPar<-function (g, name, what = c("nodes", "edges", "graph")) 
+{
+    what <- match.arg(what)
+    nms <- switch(what, nodes = nodes(g), edges = edgeNames(g, 
+        recipEdges = graphRenderInfo(g, "recipEdges")), graph = "graph")
+    ans <- switch(what, nodes = nodeRenderInfo(g, name), edges = edgeRenderInfo(g, 
+        name), graph = graphRenderInfo(g, name))
+    if (!is.null(ans) && !any(is.na(ans))) {
+        if (!is.null(names(ans))) 
+            ans <- ans[nms]
+    }    else {
+        default <- parRenderInfo(g, what)[[name]][1]
+        if (is.null(default)) 
+            default <- graph.par.get(what)[[name]][1]
+        if (is.null(ans)) {
+            ans <- rep(default, length(nms))
+        }        else {
+            if (!is.null(default)) 
+                ans[is.na(ans)] <- default
+            ans <- ans[nms]
+        }
+    }
+    ans
+}
+
+renderSpline<-function (spline, arrowhead = FALSE, arrowtail = FALSE, len = 1, 
+    col = "black", lwd = 1, lty = "solid", bbox, ...) 
+{
+    mylty <- as.numeric(lty)
+    if (!is.na(mylty)) 
+        lty <- mylty
+    lapply(spline, lines, col = col, lwd = lwd, lty = lty, ...)
+    warn <- FALSE
+    xyhead <- tail(bezierPoints(spline[[length(spline)]]), 2)
+    if (is.function(arrowhead[[1]])) {
+        xy <- list(x = xyhead[2, 1], y = xyhead[2, 2])
+        try(arrowhead[[1]](xy, col = col, lwd = lwd, lty = lty))
+    }    else {
+        warn <- drawHead(arrowhead, xyhead, bbox, col, lwd, lty, 
+            len, out = TRUE)
+    }
+    xytail <- head(bezierPoints(spline[[length(spline)]]), 2)
+    if (is.function(arrowtail[[1]])) {
+        xy <- list(x = xytail[1, 1], y = xytail[1, 2])
+        try(arrowtail[[1]](xy, col = col, lwd = lwd, lty = lty))
+    }    else {
+        warn <- warn | drawHead(arrowtail, xytail[2:1, ], bbox, 
+            col, lwd, lty, len, out = FALSE)
+    }
+    warn
+}
