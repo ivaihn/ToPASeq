@@ -8,9 +8,8 @@ Function to use TopologyGSA method on microarray or RNA-Seq data
 TopologyGSA method uses graphical models to test the differential expression of a pathway. It also highlights pathway componenets involved in the deregulation. 
 }
 \usage{
-TopologyGSA(x, group, pathways, type = "MA", convert = TRUE, IDs = "entrez",  both.directions=TRUE,
-            test="mean", testCliques=FALSE, alpha=0.05, nperm = 10000, 
-            norm.method = NULL, maxNodes = 150)
+TopologyGSA(x, group, pathways, type, preparePaths=TRUE, norm.method=NULL, test.method=NULL , method="mean", alpha=0.05, ..., 
+   both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="entrez", convertBy=NULL )
 }
 
 \arguments{
@@ -21,35 +20,40 @@ An \code{ExpressionSet} object or a gene expression data matrix or count matrix,
 Name or number of the phenoData column or a character vector or factor that contains required class assigments
 }
   \item{pathways}{
-A list of pathways in a form from \code{graphite} package
+A list of pathways in a form from \code{graphite} package or created by \code{preparePathways()}
 }
   \item{type}{
-Type of the data, \code{"MA"} for microarray and \code{"RNASeq"} for RNA-Seq
+Type of the input data, \code{"MA"} for microarray and \code{"RNASeq"} for RNA-Seq
 }
-  \item{convert}{
-Logical, should nodes' labels be converted?
-}
-  \item{IDs}{
-Character, which gene IDs should be used. One of \code{"entrez"} or \code{"symbol"}
-}
- \item{both.directions}{Logical, should undirected edges be substitued by two directed edges (one in each direction) or only by one directed edge oriented as in \code{edges()}}
-  \item{test}{
+\item{preparePaths}{
+Logical, by default the pathways are transformed with \code{preparePathways()}. Use \code{FALSE}, if you have done this transformation separately}
+\item{norm.method}{Character, the method to normalize RNAseq data. If \code{NULL} then TMM-normalization is performed. Possible values are: \code{"TMM", "DESeq2", "rLog", "none"}}
+\item{test.method}{Character, the method for differentiall expression analysis of RNAseq data. If \code{NULL} then \code{"voomlimma"} is used. Possible values are: \code{"DESeq2", "voomlimma", "vstlimma", "edgeR"}. This analysis is needed only for the visualization.   }
+  \item{method}{
 Either \code{"var"} and \code{"mean"}. Determine the type of test used by topologyGSA.
 }
-\item{testCliques}{Logical, should also be individual cliques for each pathway tested? Please, be aware that this calculation may take quite a lot of time}
-  \item{alpha}{
-Numeric, threshold for statistical significance
+ \item{alpha}{
+Numeric, threshold for statistical significance of variance test. It influences the method for the mean test
 }
-  \item{nperm}{
-Numeric, Number of permutations
-}
-  \item{norm.method}{
-Character, type of normalization method to be applied on RNA-Seq data. One of \code{"TMM"} , \code{"DESeq2"} or \code{"none"}. If \code{"none"}, normalization is not performed. TMM is coupled with voom transformation and DESeq2 with variance stabilizing transformation.
-}
-\item{maxNodes}{Pathways with more nodes than specified value will be omitted from the analysis}
-
+\item{...}{Other arguments to be passed to the method. See details for better explanation}
+\item{both.directions, maxNodes, minEdges, commonTh, filterSPIA, convertTo, convertBy}{Arguments for the \code{preparePathways()}}
+ 
 }
 
+\details{
+The user can further specify for the mean test:
+\enumerate{
+\item \strong{perms} number of permutations of the test,
+\item \strong{paired}logical flag. If TRUE Hotelling test for paired samples is calculated and the test on the variances is not performed 
+}
+
+Or for the variance test:
+\enumerate{
+\item \strong{variance}logical flag. If TRUE the estimates of the covariance matrices are included in the result.
+\item \strong{s1}First group covariance matrix estimation.
+\item \strong{s2}Second group covariance matrix estimation.
+}
+}
 \value{
 A list
 \item{res}{a list with one entry for each successfully analyzed pathway }
@@ -70,13 +74,14 @@ Ivana Ihnatova
 if (require(DEGraph)) {
   data("Loi2008_DEGraphVignette")
   p<-biocarta[1:10]
-  TopologyGSA(exprLoi2008, classLoi2008, p, type="MA", test="mean", alpha=0.05, nperm=200)
+  TopologyGSA(exprLoi2008, classLoi2008, p, type="MA", test="mean", alpha=0.05, perms=200)
   }
   
 if (require(gageData)) {
 
  data(hnrnp.cnts)
  group<-c(rep("sample",4), rep("control",4))
+ hnrnp.cnts<-hnrnp.cnts[rowSums(hnrnp.cnts)>0,]
  TopologyGSA(hnrnp.cnts, group, biocarta[1:10], type="RNASeq",test="mean", alpha=0.05, 
    nperm=200, norm.method="TMM")
 }

@@ -8,8 +8,8 @@ Function to use SPIA method on microarray or RNA-Seq data
 The function runs SPIA method on microarray or RNA-Seq data. The implementatio includes the identification of differentially expressed genes and transformation of pathways' topologies to an appropriate form. The SPIA method combines two independent p-values. One p-value comes from overrepresentation analysis and the other is so called pertubation factor. 
 }
 \usage{
-SPIA(x, group, pathways, type="MA", convert=TRUE, IDs = "entrez", 
-     gene.stat="logFC", both.directions=TRUE, logFC.th = 2, p.val.th = 0.05, test = NULL, edgeAttrs=defaultEdgeAttrs, ...)
+SPIA(x, group, pathways, type, preparePaths=TRUE, norm.method=NULL, test.method=NULL, p.th=0.05, logFC.th=2, nperm=1000, combine="fisher", 
+ both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="entrez", convertBy=NULL)
 }
 
 \arguments{
@@ -20,32 +20,23 @@ An \code{ExpressionSet} object or a gene expression data matrix or count matrix,
 Name or number of the phenoData column or a character vector or factor that contains required class assigments
 }
   \item{pathways}{
-A list of pathways in a form from \code{graphite} package
+A list of pathways in a form from \code{graphite} package or created by \code{preparePathways()}
 }
   \item{type}{
-Type of the data, \code{"MA"} for microarray and \code{"RNASeq"} for RNA-Seq
+Type of the data, \code{"MA"} for microarray, \code{"RNASeq"} for RNA-Seq, \code{DEtable} data.frame from differential expression analysis, or \code{DEGlist} a list of: log fold-changes of differentially expressed genes and names of the all genes analyses
 }
-  \item{convert}{
-Logical, should nodes' labels be converted?
-}
-  \item{IDs}{
-Character, which gene IDs should be used. One of \code{"entrez"} or \code{"symbol"}
-}
-  \item{gene.stat}{Character, which gene-level statistic should be exported? \code{"logFC"} stands for log fold-change and \code{"stats"} for the modified t-statistic from \code{limma} package}
-   \item{both.directions}{Logical, should undirected edges be substitued by two directed edges (one in each direction) or only by one directed edge oriented as in \code{edges()}}
-  \item{logFC.th}{
-A numeric, threshold to select differentially expressed genes according to log Fold-Change. Use negative, if this criterion should not be used.
-}
-  \item{p.val.th}{
-A numeric, threshold to select differentially expressed genes according to p-value from moderated t-test. Use \code{1} if this criterion should not be applied
-}
-  \item{test}{
-Character, which test should be used for differential expression analysis of RNA-Seq data. A character, which approach should be used to calculate differentially expressed genes from RNASeq data. One of \code{"vstlimma"}, \code{"voomlimma"}, \code{"limmaMA"} or \code{"DESeq2"}. \code{"limmaMA"} refers to to \code{limma}-method for microarray data. \code{"vstlimma"} referes to \code{limma} with variance stabilization normalization, \code{"voomlimma"} refers to \code{limma} with \code{voom} transformation. 
-}
-  \item{edgeAttrs}{Auxiliary data needed for SPIA method. See \code{?edgeAttrs} for more details}
-  \item{\dots}{
-Preserved for other arguments to \code{spia}. These should not be used.
-}
+\item{preparePaths}{
+Logical, by default the pathways are transformed with \code{preparePathways()}. Use \code{FALSE}, if you have done this transformation separately}
+
+\item{norm.method}{Character, the method to normalize RNAseq data. If \code{NULL} then TMM-normalization is performed. Possible values are: \code{"TMM", "DESeq2", "rLog", "none"}. Ignored for type: "MA","DEtable", "DElist"}
+\item{test.method}{Character, the method for differentiall expression analysis of RNAseq data. If \code{NULL} then \code{"voomlimma"} is used. Possible values are: \code{"DESeq2", "voomlimma", "vstlimma", "edgeR"}. Ignored for type: "MA","DEtable", "DElist"   }
+\item{p.th}{Numeric, threshold for p-values of tests for differential expression of genes. Use \code{1} if you don't want any threshold to be applied}
+\item{logFC.th}{Numeric, threshold for log fold-change of a gene to identify the gene as differentially expressed. Use negative if you don't want any threshold to be applied}
+\item{nperm}{Numeric, number of permutations}
+\item{combine}{Character, the method to combine p-values. Defaults to \code{"fisher"} for Fisher's method. The other possible value is \code{"norminv"} for the normal inversion method.  }
+
+
+\item{both.directions, maxNodes, minEdges, commonTh, filterSPIA, convertTo, convertBy}{Arguments for the \code{preparePathways()}}
 }
 
 \value{
@@ -75,12 +66,15 @@ Draghici, S., Khatri, P., Tarca, A.L., Amin, K., Done, A., Voichita, C., Georges
 \author{
 Ivana Ihnatova
 }
+\seealso{
+ \code{\link{preparePathways}}}
+ 
 \examples{
 
 if (require(DEGraph)) {
   data("Loi2008_DEGraphVignette")
   p<-biocarta[1:2]
-  SPIA(exprLoi2008, classLoi2008,p, type="MA", logFC.th=-1, IDs="entrez")
+  SPIA(exprLoi2008, classLoi2008,p, type="MA", logFC.th=-1)
 }
 \dontrun{
 if (require(gageData)) {

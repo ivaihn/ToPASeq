@@ -8,39 +8,32 @@ Function to use PWEA method on microarray or RNA-Seq data
 The function runs PWEA method (please see References for the details) on gene expression data matrix, vector specifing to which group a sample belongs and a list of pathway graphs. Briefly, it is a weighted GSEA-like method. The weightes are based on the distance and Pearson's correlation between genes in a pathway.
 }
 \usage{
-PWEA(x, group, pathways, type = "MA", test=NULL, convert = TRUE, IDs = "entrez",
-     gene.stat="logFC", both.directions=TRUE, alpha = 0.05, nperm = 5000)
+PWEA(x, group, pathways, type, preparePaths=TRUE, norm.method=NULL, test.method=NULL, tif=NULL, alpha=0.05, nperm=1000,  ncores=NULL, 
+  both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="entrez", convertBy=NULL)
 }
 
 \arguments{
   \item{x}{
-An \code{ExpressionSet} object or a gene expression data matrix or count matrix, rows refer to genes, columns to samples
+An \code{ExpressionSet} object or a gene expression data matrix or count matrix, rows refer to genes, columns to samples. Or a list of two data.frames: observed and random (after group permutations) of statistics of differential expression of genes
 }
   \item{group}{
 Name or number of the phenoData column or a character vector or factor that contains required class assigments
 }
   \item{pathways}{
-A list of pathways in a form from \code{graphite} package
+A list of pathways in a form from \code{graphite} package or created by \code{preparePathways()}
 }                                                                
   \item{type}{
-Type of the data, \code{"MA"} for microarray and \code{"RNASeq"} for RNA-Seq
+Type of the data, \code{"MA"} for microarray, \code{"RNASeq"} for RNA-Seq or \code{"DEtable"} for a list of observed and random gene-level statistics
 }
-  \item{test}{
-A character, which approach should be used to calculate differentially expressed genes from RNASeq data. One of \code{"vstlimma"}, \code{"voomlimma"}, \code{"limmaMA"} or \code{"DESeq2"}. \code{"limmaMA"} refers to to \code{limma}-method for microarray data. \code{"vstlimma"} referes to \code{limma} with variance stabilization normalization, \code{"voomlimma"} refers to \code{limma} with \code{voom} transformation, \code{DESeq2} method takes much longer and therefore it is not recommended.}
-  \item{convert}{
-Logical, should nodes' labels be converted?
-}
-  \item{IDs}{
-Character, which gene IDs should be used. One of \code{"entrez"} or \code{"symbol"}
-}
-  \item{gene.stat}{Character, which gene-level statistic should be exported? \code{"logFC"} stands for log fold-change and \code{"stats"} for the modified t-statistic from \code{limma} package   }
-   \item{both.directions}{Logical, should undirected edges be substitued by two directed edges (one in each direction) or only by one directed edge oriented as in \code{edges()}}
-  \item{alpha}{
-Numeric, a parameter used when calculating genes weights
-}
-  \item{nperm}{
-Numeric, number of permutations
-}
+ \item{preparePaths}{
+Logical, by default the pathways are transformed with \code{preparePathways()}. Use \code{FALSE}, if you have done this transformation separately}
+\item{norm.method}{Character, the method to normalize RNAseq data. If \code{NULL} then TMM-normalization is performed. Possible values are: \code{"TMM", "DESeq2", "rLog", "none"}}
+\item{test.method}{Character, the method for differentiall expression analysis of RNAseq data. If \code{NULL} then \code{"voomlimma"} is used. Possible values are: \code{"DESeq2", "voomlimma", "vstlimma", "edgeR"}.   }
+\item{tif}{A list of Topology Influence Factor's. One slot refers to one pathway. Use \code{prepareTIF()} to create it. It is required only if \code{type=="DEtable"} }
+\item{alpha}{Numeric, a theshold value used during TIF calculation}
+\item{nperm}{Numeric, number of permutations. Used only if \code{x \%in\% c("MA", "RNASeq")}}
+\item{ncores}{Numeric, number of cores. Used only if \code{x \%in\% c("MA", "RNASeq")}. The permutations are calculated in parallel way}
+\item{both.directions, maxNodes, minEdges, commonTh, filterSPIA, convertTo, convertBy}{Arguments for the \code{preparePathways()}}
 }
 
 \value{
@@ -58,8 +51,8 @@ Hung, JH., Whitfield, T. W., Yang, TH., Hu, Z., Weng, Z., DeLisi, Ch. (2010) Ide
 \author{
 Ivana Ihnatova
 }
-
-
+\seealso{
+ \code{\link{preparePathways}}, \code{\link{prepareTIF}} }
 \examples{
 \dontrun{
 if (require(DEGraph)) {

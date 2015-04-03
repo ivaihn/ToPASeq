@@ -1,16 +1,19 @@
 export(
 
-SPIA, DEGraph, Clipper, TBS, PWEA, TAPPA, TopologyGSA,
+SPIA, DEGraph, Clipper, PRS, PWEA, TAPPA, TopologyGSA,
 res, topo.sig, degtable,
 AdjacencyMatrix2pathway,
 graphNEL2pathway,
 estimateCF,
 reduceGraph,
 convertIdentifiersByVector,
-KEGG2pathway
+KEGG2pathway,
+makeDefaultEdgeData,
+prepareTIF, collectWeightsPRS, collectWeightsSPIA,
+preparePathways
 )
 
-useDynLib(ToPASeq2)
+useDynLib(ToPASeq)
 
 exportMethods(intersection, join, union, subGraph, clearNode, removeEdge, removeNode, addEdge, addNode, changeDirection, changeInteraction,"nodes<-")
 
@@ -23,11 +26,11 @@ S3method(res, topResult)
 S3method(summary, topResult)
 S3method(plot,topResult)
 
-import(graphite, gRbase, graph, locfit)
-importFrom(DESeq2, DESeqDataSetFromMatrix, DESeq, results, estimateSizeFactors, estimateDispersions, nbinomWaldTest, varianceStabilizingTransformation)
+import(graphite, gRbase, graph, locfit, methods, Rgraphviz)
+importFrom(DESeq2, DESeqDataSetFromMatrix, DESeq, results, estimateSizeFactors, estimateDispersions, nbinomWaldTest, rlogTransformation, varianceStabilizingTransformation)
 importFrom(GenomicRanges, assay, colData, "colData<-")
 importFrom(KEGGgraph, parseKGML)
-importFrom(igraph, shortest.paths,igraph.from.graphNEL, get.all.shortest.paths)
+
 importFrom(R.utils, reassignInPackage)
 importFrom(edgeR,DGEList, calcNormFactors)
 
@@ -38,6 +41,7 @@ importFrom(TeachingDemos, shadowtext)
 importFrom(limma,  lmFit, makeContrasts, contrasts.fit, eBayes, decideTests, topTable, voom) 
 importMethodsFrom(graph, edgeData, edgeDataDefaults)
 
-importFrom(SPIA, spia)
-importFrom(clipper, pathQ, easyClip, cliqueMeanTest, cliqueVarianceTest)
-importFrom(topologyGSA, pathway.mean.test, pathway.var.test, clique.mean.test, clique.var.test)
+
+importFrom(qpgraph,qpIPF)
+importFrom(RBGL,johnson.all.pairs.sp)
+importFrom(clipper, easyClip, pathQ)

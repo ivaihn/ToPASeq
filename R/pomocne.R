@@ -62,31 +62,6 @@ print(summary(object$degtable))
 # stop("Object must be from class topResult")
 # }
 
-graphite.SPIA<-function (de, all, pathwaySetName, ...)
-{
-fakeSystemFile<-function (name, package = NULL, ...)
-{
-    if (package == "SPIA" && name == "extdata")
-        getwd()
-    else base::system.file(name, package = package, ...)
-}
-
-    optArgs <- list(...)
-    if (!is.null(optArgs$organism))
-        warning("Ignoring the \"organism\" parameter.")
-    optArgs$organism <- pathwaySetName
-    spiaEnv <- environment(spia)
-    fakeEnv <- new.env(parent = spiaEnv)
-    assign("system.file", fakeSystemFile, fakeEnv)
-    tryCatch({
-        environment(spia) <- fakeEnv
-        do.call(spia, c(list(de, all), optArgs))[, c(-2, -12)]
-    }, finally = {
-        environment(spia) <- spiaEnv
-    })
-}
-
-
 CheckNames<-function(pathway, expr){
 
 IDmatchsum<-sapply(pathway, function(x) sum(nodes(x) %in% rownames(expr)))
@@ -97,71 +72,23 @@ cat("Average coverage", mean(IDmatchmean,na.rm=TRUE)*100,"%\n")
 cat(sum(IDmatchsum==0)," (out of ",length(pathway),") pathways without a mapped node\n", sep="")
 }
 
-CommonGenes<-function (pathway, genes, threshold=2)
-{
-    commonNames <- intersect(nodes(pathway), genes)
-    if (length(commonNames) < threshold) {
-        warning("not enough genes in common between pathway \"",
-            pathway@title, "\" and expression data (mismatched identifiers?)")
-        return(TRUE)
-    }
-    else return(FALSE)
-}
+#CommonGenes<-function (pathway, genes, threshold=2)
+#{
+#    commonNames <- intersect(nodes(pathway), genes)
+#    if (length(commonNames) < threshold) {
+#        warning("not enough genes in common between pathway \"",
+#            pathway@title, "\" and expression data (mismatched identifiers?)")
+#        return(TRUE)
+#    }
+#    else return(FALSE)
+#}
 
-filterPathwaysByNodeNum<-function (pathways, maxNodes) 
-{
-    if (!is.null(maxNodes)) 
-        pathways <- Filter(function(p) length(nodes(p)) <= maxNodes, 
-            pathways)
-    return(pathways)
-}
-
-
-lapplyCapturingErrors<-function (l, f) 
-{
-    log <- lapply(l, function(x) {
-        tryCatch(list("ok", f(x)), error = function(e) list("err", 
-            e))
-    })
-    list(results = Filter(Negate(is.null), filterByTag("ok", 
-        log)), errors = sapply(filterByTag("err", log), gettext))
-}
 
 filterByTag <-function (tag, l) 
 {
     isTagged <- sapply(l, function(x) x[[1]] == tag)
     lapply(l[isTagged], function(x) x[[2]])
 }
-
-insufficientCommonGenes<-function (pathway, exprGenes) 
-{
-    commonNames <- intersect(nodes(pathway), exprGenes)
-    if (length(commonNames) < 2) {
-        warning("not enough genes in common between pathway \"", 
-            pathway@title, "\" and expression data (mismatched identifiers?)")
-        return(TRUE)
-    }
-    else return(FALSE)
-}
-
-
-
-#spiaEdgeType<-function(){
-#type=c("binding", "control(In(ACTIVATION))", "control(In(INHIBITION))", "control(Out(ACTIVATION))",
-# "control(Out(INHIBITION))", "control(Out(INHIBITION-COMPETITIVE))", "control(Out(ACTIVATION_UNKMECH))", "control(Out(unknown))",
-# "control(indirect)", "process", "process(BiochemicalReaction)", "process(activation)", "process(binding/association)", "process(dephosphorylation)",
-# "process(dissociation)", "process(expression)", "process(indirect effect)", "process(indirect)",
-# "process(inhibition)", "process(missing interaction)", "process(missing)", "process(phosphorylation)",
-# "process(repression)", "process(ubiquitination)", "process(methylation)", "process(state change)" )
-#spiaType<-c("binding/association", "activation", "inhibition", "activation",
-#"inhibition", "inhibition", "activation", "indirect effect",
-#"indirect effect", "activation", "activation", "activation",
-#"binding/association", "dephosphorylation", "dissociation", "expression",
-#"indirect effect", "indirect effect", "inhibition", "indirect effect",
-#"indirect effect", "phosphorylation", "inhibition", "ubiquination","inhibition", "ubiquination")
-#return(cbind(type=type, spiaType=spiaType))
-#}
-#graphite:::spiaEdgeType
 
 
 

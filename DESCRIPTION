@@ -9,10 +9,10 @@ Description: Implementation of seven methods for topology-based pathway
         analysis of both RNASeq and microarray data: SPIA, DEGraph,
         TopologyGSA, TAPPA, TBS, PWEA and a visualization tool for a
         single pathway.
-Depends: graphite, gRbase, graph, locfit
-Imports: R.utils, edgeR, DESeq2, GenomicRanges, igraph, DESeq, fields,
-        limma, TeachingDemos, SPIA, clipper, topologyGSA, KEGGgraph
-Suggests: RUnit, BiocGenerics, gageData, Rgraphviz, DEGraph
+Depends: graphite, gRbase, graph, locfit, Rgraphviz
+Imports: R.utils, methods, edgeR, DESeq2, GenomicRanges, RBGL, DESeq, fields,
+        limma, TeachingDemos, KEGGgraph, qpgraph, clipper
+Suggests: RUnit, BiocGenerics, gageData, DEGraph,  plotrix
 LinkingTo: Rcpp
 LazyData: yes
 License: AGPL-3

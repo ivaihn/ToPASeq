@@ -1,24 +1,3 @@
-headline<-function(res, which, plot){
-if (is.character(which)) main<-which else 
-if (is.list(res$topo.sig)) main<-names(res$topo.sig)[which] else
-if (is.matrix(res$res)) main<-rownames(res$res)[which] else 
-if (is.list(res$res)) main<-names(res$res)[which]
-
-
-sig<-""
-if (is.data.frame(res[[1]]) | is.matrix(res[[1]])) {
- if ("p" %in% colnames(res[[1]])) sig<- round(res$res[main,"p"],3)
- if ("p.value" %in% colnames(res[[1]])) sig<- round(res$res[main,"p.value"],3)
- if ("pG" %in% colnames(res[[1]])) sig<- round(res$res[main,"pG"],3)
- if ("alphaMean" %in% colnames(res[[1]])) sig<- round(res$res[main,"alphaMean"],3)
-} 
-if (is.list(res[[1]]) & length(res[[1]][[which]])==1) sig<-round(res$res[[which]][[1]]$p.value[2],3)
-
-if (sig!="" & !is.na(sig)) sig<-paste("(p = ", sig,")", sep="") else sig=""
-if (plot) title(paste(main, sig, sep="\n"), line=-2)
-return(paste(main, sig, sep="\n"))
-}
-
 plotGraphW<-function(res, which, graphs, convert, IDs, graphIDs, reduction, combnfunction, logical, sig.th, pallete.colors, na.col,breaks, layout, nodesize, fontsize, shift, tsig, tsig.whole, stats, title){
 .pardefault <- par(no.readonly = TRUE)
 .graphpar<-graph.par()
@@ -59,7 +38,8 @@ names(tsig.cut)<-names(tsig)
 }
 
 #graph<-convertIdentifiers(graphs[[which]], graphIDs)
-if (length(reduction)==0 & convert) node.names<-nodes(convertIdentifiers(graphs[[which]], graphIDs))  else     node.names<-nodes(g)
+if (length(reduction)==0 & convert) node.names<-nodes(convertIdentifiers(graphs[[which]], graphIDs))  else   
+  node.names<-nodes(g)
    
 nA<-list(fillcolor=setNames(as.character(colp1[pres.nodes]), pres.nodes), 
          color=setNames(rep("white", length(nodes(gr))), nodes(gr)),
@@ -133,12 +113,6 @@ not.ok.edg<-paste(log.edg[,1], log.edg[,2], sep="~")[!tmp]
 edg.col<-setNames(rep("gray87",length(not.ok.edg)), not.ok.edg)
 
 nA$fillcolor[!( names(nA$fillcolor) %in% unique(c(log.edg[,1][tmp], log.edg[,2][tmp])))]<-"white" 
- 
- 
- 
- 
- 
- 
  }        
  
 
@@ -183,7 +157,7 @@ layout(matrix(c(1,1,1,1,2,3), nrow=1))
 
 #xx@renderInfo@graph$bbox[2,1]<- xx@renderInfo@graph$bbox[2,1]*1.25
 #suppressWarnings()
-renderGraph(xx, graph.pars=list(graph=list(main=headline(res,which,FALSE), cex.main=1.8)), drawNodes=drawNodesPies, drawEdges=renderEdgesTypes)
+renderGraph(xx, graph.pars=list(graph=list(main=headline(res,which,FALSE), cex.main=1.8)), drawNodes=drawNodesPies2, drawEdges=renderEdgesTypes2)
 
 
 bbox<-xx@renderInfo@graph$bbox
