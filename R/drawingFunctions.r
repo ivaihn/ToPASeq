@@ -323,3 +323,11 @@ drawHead<-function (type, xy, bbox, col, lwd, lty, len, out = TRUE)
     })
     warn
 }
+
+
+rotate<-function (x, y, alpha, offset) 
+{
+    xn <- x * cos(alpha) - y * sin(alpha) + offset[1]
+    yn <- x * sin(alpha) + y * cos(alpha) + offset[2]
+    list(x = xn, y = yn)
+}

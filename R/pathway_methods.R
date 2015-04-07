@@ -19,6 +19,12 @@ edgCount[names(selfloop)]<-edgCount[names(selfloop)]-1
 if (!missing(Nodes)>0) edgCount[Nodes] else edgCount
 })
 
+setMethod("degree",c("pathway","missing"), function(object, Nodes){
+degree(object, nodes(object)
+}
+
+
+
 setMethod("numNoEdges", "pathway", function(objGraph){
 sum(degree(objGraph, objGraph@nodes)==0)
 })
@@ -47,7 +53,7 @@ am[am>1]<-1
     index <- 1
     nused <- numeric(0)
     while (!done) {
-        curracc <- unname(accCpp(am, NL, NL[cnode]))
+        curracc <- names(accCpp(am, NL, NL[cnode])[[1]])
         rval[[index]] <- curracc
         nused <- c(nused, cnode)
         index <- index + 1
@@ -73,7 +79,7 @@ if (!missing(which)) E[E[,1] %in% which | E[,2] %in% which,] else E
 
 setMethod("isAdjacent", c("pathway","character", "character"), function(object,from, to){
 E<-edges(object,from)
-E[,3][E[,2]==to]=="directed" | E[,3][E[,1]==to]=="undirected"  | E[,3][E[,2]==to]=="undirected" 
+any(E[,3][E[,2]==to]=="directed", E[,3][E[,1]==to]=="undirected" , E[,3][E[,2]==to]=="undirected" )
 })
 
 setMethod("isConnected", "pathway", function(object){
@@ -251,13 +257,15 @@ if (verbose) {
 cat("Interactions...\n")
 E[select,4]
 }
-if (nrow(E[select,4])!= length(interaction)) stop("the number of relevat edges is not equal to the number of interaction type")
+E[,4]<-as.character(E[,4])
+#if (nrow(E[select,])!= length(interaction)) stop("the number of relevat edges is not equal to the number of interaction type")
 E[select,4]<-interaction
 
 if (verbose) {
 cat("Were modified as follows...\n")
 E[select,4]
 }
+E[,4]<-factor(E[,4])
 new("pathway", title=graph@title, nodes=graph@nodes, edges=E, 
 ident=graph@ident, database=graph@database, species=graph@species, timestamp=Sys.Date()
 )

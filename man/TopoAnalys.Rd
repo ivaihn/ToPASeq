@@ -2,6 +2,7 @@
 \docType{methods}
 \alias{TopologicalAnalysis}
 \alias{degree,pathway,character-method}
+\alias{degree,pathway,missing-method}
 \alias{numNoEdges,pathway-method}
 \alias{mostEdges,pathway-method}
 \alias{acc,pathway,character-method}
@@ -25,6 +26,7 @@ Methods for basic topological analysis of \code{pathway} class from \pkg{graphit
 \describe{
 
 \item{degree \code{signature(object = "pathway", Nodes = "character")}}{Returns the number of incoming or outgoing edges for nodes in \code{Nodes} }
+\item{degree \code{signature(object = "pathway", Nodes = "missing")}}{Returns the number of incoming or outgoing edges for all nodes in \code{object} }
 \item{numNoEdges \code{signature(objGraph = "pathway")}}{Returns the number of nodes without any edge}
 \item{mostEdges \code{signature(objGrapg = "pathway")}}{Returns the nodes with most edges}
 \item{acc \code{signature(object = "pathway", index = "character")}}{Returns the set of nodes accessible from nodes in \code{index}. The undirected edges are considered as bidirected (directed in both directions)}
