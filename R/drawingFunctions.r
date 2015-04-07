@@ -256,3 +256,70 @@ suppressWarnings(renderSpline(splines[[i]],
         cex = cex * as.numeric(fontsize)/14, bg = "white")
 }
 ########
+drawHead<-function (type, xy, bbox, col, lwd, lty, len, out = TRUE) 
+{
+    db <- as.numeric(diff(bbox))
+    dxy <- diff(xy) * db
+    alpha <- atan(dxy[2]/dxy[1])
+    r <- max(bbox)/130
+    warn = FALSE
+    normArrow <- function(r, alpha, xy, col, lwd, lty, out) {
+        r <- r * 0.5
+        x <- c(-1, 0, 1) * r
+        y <- c(-1, 1, -1) * r
+        off <- if (out) 
+            90
+        else -90
+        alpha <- alpha - off * (pi/180)
+        xyr <- rotate(x, y, alpha, xy[2, ])
+        polygon(xyr, col = col, border = col, lwd = lwd, lty = lty)
+    }
+    switch(unlist(type), none = {
+    }, box = {
+        x <- c(-1, -1, 1, 1) * r
+        y <- c(-1, 1, 1, -1) * r
+        xyr <- rotate(x, y, alpha, xy[2, ])
+        polygon(xyr, col = col, border = col, lwd = lwd, lty = lty)
+    }, obox = {
+        x <- c(-1, -1, 1, 1) * r
+        y <- c(-1, 1, 1, -1) * r
+        xyr <- rotate(x, y, alpha, xy[2, ])
+        polygon(xyr, border = col, col = "white", lwd = lwd, 
+            lty = lty)
+    }, dot = {
+        symbols(xy[2, 1], xy[2, 2], circles = r, inches = FALSE, 
+            add = TRUE, fg = col, lwd = lwd, lty = lty, bg = col)
+    }, odot = {
+        symbols(xy[2, 1], xy[2, 2], circles = r, inches = FALSE, 
+            add = TRUE, fg = col, lwd = lwd, lty = lty, bg = "white")
+    }, diamond = {
+        x <- c(-1, -1, 1, 1) * r
+        y <- c(-1, 1, 1, -1) * r
+        xyr <- rotate(x, y, alpha + 45 * (pi/180), xy[2, ])
+        polygon(xyr, col = col, border = col, lwd = lwd, lty = lty)
+    }, odiamond = {
+        x <- c(-1, -1, 1, 1) * r
+        y <- c(-1, 1, 1, -1) * r
+        xyr <- rotate(x, y, alpha + 45 * (pi/180), xy[2, ])
+        polygon(xyr, col = "white", border = col, lwd = lwd, 
+            lty = lty)
+    }, tee = {
+        x <- c(0, 0) * r
+        y <- c(-1, 1) * r
+        xyr <- rotate(x, y, alpha, xy[2, ])
+        lines(xyr, col = col, lwd = lwd, lty = lty)
+    }, normal = {
+        normArrow(r, alpha, xy, col, lwd, lty, out)
+    }, open = {
+        arrows(xy[1], xy[3], xy[2], xy[4], length = len, col = col, 
+            lwd = lwd, lty = lty)
+    }, vee = {
+        arrows(xy[1], xy[3], xy[2], xy[4], length = len, col = col, 
+            lwd = lwd, lty = lty)
+    }, {
+        warn <- TRUE
+        arrows(xy[1], xy[3], xy[2], xy[4], length = len, col = col, 
+            lwd = lwd, lty = lty)
+    })
+    warn
+}
