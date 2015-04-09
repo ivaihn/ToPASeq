@@ -21,7 +21,7 @@ if (!missing(Nodes)>0) edgCount[Nodes] else edgCount
 
 setMethod("degree",c("pathway","missing"), function(object, Nodes){
 degree(object, nodes(object))
-}
+})
 
 
 
