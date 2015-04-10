@@ -10,7 +10,7 @@ Description: Implementation of seven methods for topology-based pathway
         TopologyGSA, TAPPA, TBS, PWEA and a visualization tool for a
         single pathway.
 Depends: graphite, gRbase, graph, locfit, Rgraphviz
-Imports: R.utils, methods, edgeR, DESeq2, GenomicRanges, RBGL, DESeq, fields,
+Imports: R.utils, methods, Biobase, parallel, edgeR, DESeq2, GenomicRanges, RBGL, DESeq, fields,
         limma, TeachingDemos, KEGGgraph, qpgraph, clipper
 Suggests: RUnit, BiocGenerics, gageData, DEGraph,  plotrix
 LinkingTo: Rcpp

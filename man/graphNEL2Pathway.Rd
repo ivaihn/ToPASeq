@@ -43,7 +43,7 @@ Ivana Ihnatova
 
 
 \seealso{
- \code{\link[graphite]{pathway-class}}, \code{\link[graphite]{pathwayGraph}}
+ \code{\link[graphite]{pathwayGraph}}
 }
 \examples{
 kegg[[1]]

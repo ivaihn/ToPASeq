@@ -41,8 +41,6 @@ Ivana Ihnatova
 }
 
 
-\seealso{
- \code{\link[graphite]{pathway-class}}
-}
+
 \keyword{ manip }
 

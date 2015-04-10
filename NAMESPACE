@@ -34,6 +34,9 @@ importFrom(KEGGgraph, parseKGML)
 importFrom(R.utils, reassignInPackage)
 importFrom(edgeR,DGEList, calcNormFactors)
 
+importFrom(parallel, detectCores, makeCluster, clusterExport, parSapply, stopCluster)
+importClassesFrom(Biobase, ExpressionSet)
+importMethodsFrom(Biobase, exprs, pData)
 
 importFrom(DESeq, newCountDataSet, estimateSizeFactors, estimateDispersions)
 importFrom(fields, image.plot)

@@ -38,9 +38,7 @@ An object of class \code{pathway}}
 Ivana Ihnatova
 }
 
-\seealso{
-\code{\link[graphite]{pathway-class}}
-}
+
 \examples{
 genes<-paste("gene", 1:10, sep="")
 adjmat<-matrix(sample(c(0,0,0,0,1), 100, TRUE),10,10, dimnames=list(genes,genes))
