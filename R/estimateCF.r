@@ -7,7 +7,8 @@ nod<-nodes(graph)
 
 e.sub<-e[e[,3]=="undirected" & e[,4]=="binding",]
 compNod<-unique(c(e.sub[,1],e.sub[,2]))
-comp<-getCliques(subGraph(compNod, pathwayGraph(graph)))
+
+comp<-getCliques(subGraph(compNod, buildGraphNEL(nodes(graph), edges(graph), TRUE)))
 comp[sapply(comp, length)==2]<-NULL
 if (length(comp)>0) names(comp)<-paste("complex", seq_len(length(comp)),sep="")
 

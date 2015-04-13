@@ -224,7 +224,7 @@ eA<-list(
  labelfontsize=setNames(rep(0.5*fontsize, length(EdgeList$ELabels)), names(EdgeList$ELabels)),
  color=setNames(EdgeList$Ecol,names(EdgeList$ELabels))
  )
-xxg<-layoutGraph(pathwayGraph(gp), nodeAttrs=nA, edgeAttrs=eA)
+xxg<-layoutGraph(as(gp,"graphNEL"), nodeAttrs=nA, edgeAttrs=eA)
 nodeRenderInfo(xxg)<-list(fontsize = setNames(fontsize + as.numeric(NodeTable$tsigCat), NodeTable$namesPlot))
 edgeRenderInfo(xxg)<-list(arrowhead=EdgeList$Arrows, arrowtail=EdgeList$Tails, lty=EdgeList$Dashed, col=EdgeList$Ecol)
 return(xxg)
@@ -245,7 +245,7 @@ eA<-list(
  color=setNames(EdgeList$Ecol,names(EdgeList$ELabels))
  )
 
-xxred<-layoutGraph(pathwayGraph(reduceGraph(gp, reduct)), nodeAttrs=nA, edgeAttrs=eA )
+xxred<-layoutGraph(as(reduceGraph(gp, reduct),"graphNEL"), nodeAttrs=nA, edgeAttrs=eA )
 
 
 if (length(reduct)>0) {

@@ -1,6 +1,6 @@
 test_graphNEL2pathway<-function(){
 g1<-kegg[[1]]
-g2<-pathwayGraph(g1)
+g2<-as(g1,"grapjNEL")
 g3<-graphNEL2pathway(g2)
 
 checkTrue(length(nodes(g1))==length(nodes(g3)))
@@ -20,7 +20,7 @@ checkTrue(length(unlist(edges(g)))==nrow(edges(gg)))
 checkTrue(nlevels(edges(gg)[,4])==1)
 
 G1<-kegg[[1]]
-G2<-graphNEL2pathway(pathwayGraph(G1))
+G2<-graphNEL2pathway(as(G1,"graphNEL"))
 checkTrue(identical(nodes(G1), nodes(G2)) )
 checkTrue(identical(edges(G1)[,1:3], edges(G2)[,1:3]))
 checkTrue(identical(as.character(edges(G1)[,4]), as.character(edges(G2)[,4])))

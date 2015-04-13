@@ -36,6 +36,7 @@ Ivana Ihnatova
 
 \examples{
 g<-kegg[["Asthma"]]
+g<-as(g, "pathway")
 conv<-setNames(paste("gene", 1:length(nodes(g)), sep=""), nodes(g))
 gc<-convertIdentifiersByVector(g, conv, "dummy")
 nodes(gc)

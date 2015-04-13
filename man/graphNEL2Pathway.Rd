@@ -41,14 +41,11 @@ Ivana Ihnatova
 }
 
 
-
-\seealso{
- \code{\link[graphite]{pathwayGraph}}
-}
 \examples{
-kegg[[1]]
-pathwayGraph(kegg[[1]])
-graphNEL2pathway(pathwayGraph(kegg[[1]]))
+pathway<-kegg[[1]]
+pathway<-as(pathway,"pathway")
+as(pathway,"graphNEL")
+graphNEL2pathway(as(pathway,"graphNEL"))
 
 set.seed(123)
 rg <- randomEGraph(LETTERS[1:20], edges = 30)

@@ -15,9 +15,12 @@ preparePathways
 
 useDynLib(ToPASeq)
 
+exportClasses(pathway)
+exportMethods(nodes, edges)
 exportMethods(intersection, join, union, subGraph, clearNode, removeEdge, removeNode, addEdge, addNode, changeDirection, changeInteraction,"nodes<-")
 
 exportMethods(degree, numNoEdges, mostEdges, acc, connComp, edges, isAdjacent, isDirected, isConnected, edgemode, numEdges, numNodes, edgeNames)
+
 
 S3method(print, topResult)
 S3method(topo.sig, topResult)

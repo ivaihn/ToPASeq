@@ -32,7 +32,8 @@ Ivana Ihnatova
  \code{\link{reduceGraph}}
 }
 \examples{
-estimateCF(kegg[[1]])
+pathway<-as(kegg[[1]], "pathway")
+estimateCF(pathway)
 }
 \keyword{manip }
 

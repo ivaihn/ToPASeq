@@ -224,12 +224,12 @@ cat(sum(IDmatchsum==0)," (out of ",length(pathway),") pathways without a mapped 
 }
 
 transformPathway<-function(x, method, both.directions=TRUE, EdgeAttrs=NULL){
-if (! any(class(x)=="Pathway")) stop("x must be an object of 'Pathway'-class")
+if (! any(class(x)=="pathway")) stop("x must be an object of 'pathway'-class")
 if (is.null(EdgeAttrs)) EdgeAttrs<-makeDefaultEdgeData() 
 
 
 if (method=="TAPPA") {
-  x<-pathwayGraph(x) 
+  x<-as(x,"graphNEL") 
   x<-as(x,"matrix")
   x<-x+t(x)
   x[x>1]<-1

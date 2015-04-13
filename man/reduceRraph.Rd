@@ -28,15 +28,16 @@ Ivana Ihnatova
 }
 \examples{
 gr<-convertIdentifiers(kegg[["Prolactin signaling pathway"]],"symbol")
+gr<-as(gr,"pathway")
 red<-list(RAS=c("NRAS","KRAS","HRAS"), SHC=c("SHC1", "SHC4","SHC2","SHC3"))
 reduced<-reduceGraph(gr, red)
 reduced
 par(mfrow=c(1,2))
 
 nA<-list(fillcolor=c(NRAS="red", KRAS="red", HRAS="red", SHC1="green", SHC4="green", SHC2="green", SHC3="green"))
-plot(pathwayGraph(gr), nodeAttrs=nA, attrs=list(node=list(fontsize=30, height=40)), main="Before")
+plot(as(gr,"graphNEL"), nodeAttrs=nA, attrs=list(node=list(fontsize=30, height=40)), main="Before")
 
-plot(pathwayGraph(reduced), 
+plot(as(reduced,"graphNEL"), 
  nodeAttrs=list(fillcolor=c(RAS="red", SHC="green")), attrs=list(node=list(fontsize=30, height=40)), main="After")
 
 #this throws an error, "RELA", "FOS","NFKB1" is not correct set of genes
@@ -52,9 +53,9 @@ reduced<-reduceGraph(gr, list(com=c("CCNE1", "CDK2", "CCNE2")))
 par(mfrow=c(1,2))
 
 nA<-list(fillcolor=c(CCNE1="red", CDK2="red", CCNE2="red"))
-plot(pathwayGraph(gr), nodeAttrs=nA, attrs=list(node=list(fontsize=30, height=40)), main="Before")
+plot(as(gr,"graphNEL"), nodeAttrs=nA, attrs=list(node=list(fontsize=30, height=40)), main="Before")
 
-plot(pathwayGraph(reduced), 
+plot(as(reduced,"graphNEL"), 
  nodeAttrs=list(fillcolor=c(com="red")), attrs=list(node=list(fontsize=30, height=40)), main="After")
 
 }
