@@ -9,7 +9,7 @@ DEGraph implements recent hypothesis testing methods which directly assess wheth
 }
 \usage{
 DEGraph(x, group, pathways, type, preparePaths=TRUE, norm.method=NULL, test.method=NULL, overall="biggest", useInteractionSigns=TRUE, EdgeAttrs=NULL,
-   both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="entrez", convertBy=NULL)
+   both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="none", convertBy=NULL)
 }
 \arguments{
   \item{x}{
@@ -52,8 +52,9 @@ Ivana Ihnatova
 
 if (require(DEGraph)) {
   data("Loi2008_DEGraphVignette")
-
-  DEGraph(exprLoi2008, classLoi2008, biocarta[1:10], type="MA")
+  pathways<-pathways("hsapiens","biocarta")[1:10]
+  pathways<-lapply(pathways, function(p) as(p,"pathway"))
+  DEGraph(exprLoi2008, classLoi2008, pathways, type="MA")
 }
 \dontrun{
 if (require(gageData)) {
@@ -61,7 +62,9 @@ if (require(gageData)) {
  data(hnrnp.cnts)
  hnrnp.cnts<-hnrnp.cnts[rowSums(hnrnp.cnts)>0,]
  group<-c(rep("sample",4), rep("control",4))
- DEGraph(hnrnp.cnts, group, biocarta[1:10], type="RNASeq", norm.method="TMM")
+ pathways<-pathways("hsapiens","biocarta")[1:10]
+ pathways<-lapply(pathways, function(p) as(p,"pathway"))
+ DEGraph(hnrnp.cnts, group, pathways, type="RNASeq", norm.method="TMM")
 }
 }
 }

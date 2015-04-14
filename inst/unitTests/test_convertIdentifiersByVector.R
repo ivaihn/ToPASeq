@@ -1,5 +1,7 @@
 test_convertIdentifiersByVector<-function(){
-g<-kegg[["Asthma"]]
+pathways<-pathways("hsapiens","kegg")["Asthma"]
+g<-as(pathways[[1]],"pathway")
+
 conv<-setNames(paste("gene", 1:length(nodes(g)), sep=""), nodes(g))
 gc<-convertIdentifiersByVector(g, conv, "dummy")
 checkTrue(length(nodes(g))== length(nodes(gc)))

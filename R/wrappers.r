@@ -1,6 +1,6 @@
 # wrappers
 TAPPA<-function(x, group, pathways, type, preparePaths=TRUE, norm.method=NULL, test.method=NULL, test=t.test, normalize=TRUE, verbose=FALSE, both.directions=TRUE, 
-   maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="entrez", convertBy=NULL){
+   maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="none", convertBy=NULL){
 gedm<-prepareData(x, group, type, method="TAPPA", norm.method)
 if (preparePaths) paths<-preparePathways(pathways, method="TAPPA", both.directions, rownames(gedm[[1]]), maxNodes, minEdges, commonTh, filterSPIA, convertTo, convertBy ) else paths<-pathways
 res<-tappa(gedm[[1]], gedm[[2]], paths, test, normalize, verbose)
@@ -14,7 +14,7 @@ return(out)
 }
 
 Clipper<-function(x, group, pathways, type, preparePaths=TRUE, norm.method=NULL, test.method=NULL,  method="mean", testCliques=FALSE, nperm=1000, alphaV=0.05, b=NULL, permute=TRUE,
-   both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="entrez", convertBy=NULL){
+   both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="none", convertBy=NULL){
 gedm<-prepareData(x, group, type, method="clipper", norm.method)
 if (preparePaths) paths<-preparePathways(pathways, method="clipper", both.directions, rownames(gedm[[1]]), maxNodes, minEdges, commonTh, filterSPIA, convertTo, convertBy ) else paths<-pathways
 res<-CLIPPER(paths, gedm[[1]], gedm[[2]], method, testCliques, nperm, alphaV, b, permute)
@@ -28,7 +28,7 @@ return(out)
 }
 
 TopologyGSA<-function(x, group, pathways, type, preparePaths=TRUE, norm.method=NULL, test.method=NULL , method="mean", alpha=0.05, ..., 
-   both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="entrez", convertBy=NULL ){
+   both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="none", convertBy=NULL ){
 gedm<-prepareData(x, group, type, method="TopologyGSA", norm.method)
 if (preparePaths) paths<-preparePathways(pathways, method="TopologyGSA", both.directions,rownames(gedm[[1]]), maxNodes, minEdges, commonTh, filterSPIA, convertTo, convertBy ) else paths<-pathways
 res<-topologyGSA(gedm[[1]], gedm[[2]], paths, method, alpha, ... )
@@ -42,7 +42,7 @@ return(out)
 }
 
 DEGraph<-function(x, group, pathways, type, preparePaths=TRUE, norm.method=NULL, test.method=NULL, overall="biggest", useInteractionSigns=TRUE, EdgeAttrs=NULL,
-   both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="entrez", convertBy=NULL){
+   both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="none", convertBy=NULL){
 gedm<-prepareData(x, group, type, method="DEGraph", norm.method)
 
 if (preparePaths) {
@@ -65,7 +65,7 @@ return(out)
 }
 
 PWEA<-function(x, group, pathways, type, preparePaths=TRUE, norm.method=NULL, test.method=NULL, tif=NULL, alpha=0.05, nperm=1000,  ncores=NULL, 
-  both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="entrez", convertBy=NULL){
+  both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="none", convertBy=NULL){
 gedm<-prepareData(x, group, type, method="PWEA", norm.method, test.method, nperm, ncores)
 if (preparePaths) paths<-preparePathways(pathways, method="PWEA", both.directions, rownames(gedm[[1]]),maxNodes, minEdges, commonTh, filterSPIA, convertTo, convertBy ) else paths<-pathways
 if (is.null(tif) & type=="DEtable") stop("Argument 'tif' is missing. Calculate TIF with prepareTIF() first.")
@@ -83,7 +83,7 @@ return(out)
 }
 
 SPIA<-function(x, group, pathways, type, preparePaths=TRUE, norm.method=NULL, test.method=NULL, p.th=0.05, logFC.th=2, nperm=1000, combine="fisher", 
- both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="entrez", convertBy=NULL){
+ both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="none", convertBy=NULL){
 degs<-prepareData(x, group, type, method="SPIA", norm.method, test.method, p.th=p.th, logFC.th=logFC.th)
 
 if (preparePaths) paths<-preparePathways(pathways, method="SPIA", both.directions, degs[[2]], maxNodes, minEdges, commonTh, filterSPIA, convertTo, convertBy ) else paths<-pathways
@@ -106,7 +106,7 @@ return(out)
 }
 
 PRS<-function(x, group, pathways, type, preparePaths=TRUE, norm.method=NULL, test.method=NULL, p.th=0.05, logFC.th=2, nperm=1000,
- both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="entrez", convertBy=NULL){
+ both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="none", convertBy=NULL){
 degs<-prepareData(x, group, type, method="SPIA", norm.method, test.method, p.th=p.th, logFC.th=logFC.th)
 if (preparePaths) paths<-preparePathways(pathways, method="PRS", both.directions, degs[[2]], maxNodes, minEdges, commonTh, filterSPIA, convertTo, convertBy ) else paths<-pathways
 res<-prs(degs[[1]], degs[[2]], paths, nperm)

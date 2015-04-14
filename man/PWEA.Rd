@@ -9,7 +9,7 @@ The function runs PWEA method (please see References for the details) on gene ex
 }
 \usage{
 PWEA(x, group, pathways, type, preparePaths=TRUE, norm.method=NULL, test.method=NULL, tif=NULL, alpha=0.05, nperm=1000,  ncores=NULL, 
-  both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="entrez", convertBy=NULL)
+  both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="none", convertBy=NULL)
 }
 
 \arguments{
@@ -57,14 +57,19 @@ Ivana Ihnatova
 \dontrun{
 if (require(DEGraph)) {
   data("Loi2008_DEGraphVignette")
-  PWEA(exprLoi2008, classLoi2008, biocarta[1:10],  type="MA", nperm=100)
+  pathways<-pathways("hsapiens","biocarta")[1:10]
+  pathways<-lapply(pathways, function(p) as(p,"pathway"))
+  PWEA(exprLoi2008, classLoi2008, pathways,  type="MA", nperm=100)
 }
 
 
 if (require(gageData)) {
  data(hnrnp.cnts)
+ hnrnp.cnts<-hnrnp.cnts[rowSums(hnrnp.cnts)>0,]
  group<-c(rep("sample",4), rep("control",4))
- PWEA(hnrnp.cnts, group, biocarta[1:10],  type="RNASeq", test="vstlimma", nperm=100)
+ pathways<-pathways("hsapiens","biocarta")[1:10]
+ pathways<-lapply(pathways, function(p) as(p,"pathway"))
+ PWEA(hnrnp.cnts, group, pathways,  type="RNASeq", test="vstlimma", nperm=100)
 }
 }
 }

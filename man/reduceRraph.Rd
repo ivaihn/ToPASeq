@@ -27,8 +27,11 @@ A \code{pathway}
 Ivana Ihnatova
 }
 \examples{
-gr<-convertIdentifiers(kegg[["Prolactin signaling pathway"]],"symbol")
-gr<-as(gr,"pathway")
+pathways<-pathways("hsapiens","kegg")["Prolactin signaling pathway"]
+pathways<-convertIdentifiers(pathways[[1]], "symbol")
+
+
+gr<-as(pathways,"pathway")
 red<-list(RAS=c("NRAS","KRAS","HRAS"), SHC=c("SHC1", "SHC4","SHC2","SHC3"))
 reduced<-reduceGraph(gr, red)
 reduced
@@ -42,12 +45,22 @@ plot(as(reduced,"graphNEL"),
 
 #this throws an error, "RELA", "FOS","NFKB1" is not correct set of genes
 \dontrun{
+pathways<-pathways("hsapiens","kegg")["Prolactin signaling pathway"]
+pathways<-convertIdentifiers(pathways[[1]], "symbol")
+
+
+gr<-as(pathways,"pathway")
 gr<-convertIdentifiers(kegg[["Prolactin signaling pathway"]],"symbol")
 red<-list(RAS=c("NRAS","KRAS","HRAS"), SHC=c("RELA", "FOS","NFKB1"))
 reduced<-reduceGraph(gr, red)
 }
 
-gr<-convertIdentifiers(kegg[["p53 signaling pathway"]], "symbol")
+pathways<-pathways("hsapiens","kegg")["p53 signaling pathway"]
+pathways<-convertIdentifiers(pathways[[1]], "symbol")
+
+
+gr<-as(pathways,"pathway")
+
 reduced<-reduceGraph(gr, list(com=c("CCNE1", "CDK2", "CCNE2")))
 
 par(mfrow=c(1,2))

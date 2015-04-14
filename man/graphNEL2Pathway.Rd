@@ -36,6 +36,9 @@ A date, the date the topology was created
 \value{
 A coerced \code{pathway}
 }
+\note{
+When this function is applied on \code{x} as reversed operation to \code{as(x,"pathway")} then the order of the edges may differ as well as the directionality of \code{"process(indirect)"} edges as they are set as \code{undirected} by graphNEL2Pathway.
+}
 \author{
 Ivana Ihnatova
 }

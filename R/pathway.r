@@ -24,7 +24,7 @@ setMethod("edges", signature(object="pathway"), function(object) object@edges)
 setAs("Pathway","pathway", function(from) {
 E<-from@edges
 E[,4]<-factor(E[,4])
-out<-new("pathway", title =  from@title, nodes = as.character(unname(unlist(from@edges[,1:2]))), edges = E, 
+out<-new("pathway", title =  from@title, nodes = unique(as.character(unname(unlist(from@edges[,1:2])))), edges = E, 
  ident = from@identifier, database =  from@database, species = from@species, timestamp = from@timestamp)
 return(out)
 })

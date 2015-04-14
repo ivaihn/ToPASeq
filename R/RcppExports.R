@@ -2,18 +2,18 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 accCpp <- function(AM, nodeNames, index) {
-    .Call('accCpp', PACKAGE = 'ToPASeq', AM, nodeNames, index)
-}
-
-downstreamCpp <- function(AM, nodeNames, index) {
-    .Call('downstreamCpp', PACKAGE = 'ToPASeq', AM, nodeNames, index)
-  
+    .Call('ToPASeq_accCpp', PACKAGE = 'ToPASeq', AM, nodeNames, index)
 }
 
 colMax <- function(X) {
-    .Call('colMax', PACKAGE = 'ToPASeq', X)
+    .Call('ToPASeq_colMax', PACKAGE = 'ToPASeq', X)
 }
 
 colMin <- function(X) {
-    .Call('colMin', PACKAGE = 'ToPASeq', X)
+    .Call('ToPASeq_colMin', PACKAGE = 'ToPASeq', X)
 }
+
+downstreamCpp <- function(AM, nodeNames, index) {
+    .Call('ToPASeq_downstreamCpp', PACKAGE = 'ToPASeq', AM, nodeNames, index)
+}
+

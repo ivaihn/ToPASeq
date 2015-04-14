@@ -59,11 +59,13 @@ Ivana Ihnatova
 \examples{
 #Creating dummy set of genes
 set.seed(123)
-genes<-unname(unlist(lapply(kegg[1:3], nodes)))
+pathways<-pathways("hsapiens","kegg")[1:3]
+  pathways<-lapply(pathways, function(p) as(p,"pathway"))
+genes<-unname(unlist(lapply(pathways[1:3], nodes)))
 genes<-sample(genes, length(genes)*0.9)
 
 #Applying the function
-paths<-preparePathways(kegg[1:3], "TAPPA", TRUE, genes, maxNodes=65, convertTo="none")
+paths<-preparePathways(pathways[1:3], "TAPPA", TRUE, genes, maxNodes=65, convertTo="none")
 paths
 
 

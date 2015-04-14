@@ -9,7 +9,7 @@ TopologyGSA method uses graphical models to test the differential expression of 
 }
 \usage{
 TopologyGSA(x, group, pathways, type, preparePaths=TRUE, norm.method=NULL, test.method=NULL , method="mean", alpha=0.05, ..., 
-   both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="entrez", convertBy=NULL )
+   both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="none", convertBy=NULL )
 }
 
 \arguments{
@@ -73,8 +73,10 @@ Ivana Ihnatova
 \dontrun{
 if (require(DEGraph)) {
   data("Loi2008_DEGraphVignette")
-  p<-biocarta[1:10]
-  TopologyGSA(exprLoi2008, classLoi2008, p, type="MA", test="mean", alpha=0.05, perms=200)
+  pathways<-pathways("hsapiens","biocarta")[1:10]
+  pathways<-lapply(pathways, function(p) as(p,"pathway"))p<-biocarta[1:10]
+  
+  TopologyGSA(exprLoi2008, classLoi2008, pathways, type="MA", test="mean", alpha=0.05, perms=200)
   }
   
 if (require(gageData)) {
@@ -82,7 +84,9 @@ if (require(gageData)) {
  data(hnrnp.cnts)
  group<-c(rep("sample",4), rep("control",4))
  hnrnp.cnts<-hnrnp.cnts[rowSums(hnrnp.cnts)>0,]
- TopologyGSA(hnrnp.cnts, group, biocarta[1:10], type="RNASeq",test="mean", alpha=0.05, 
+ pathways<-pathways("hsapiens","biocarta")[1:10]
+  pathways<-lapply(pathways, function(p) as(p,"pathway"))
+ TopologyGSA(hnrnp.cnts, group,pathways, type="RNASeq",test="mean", alpha=0.05, 
    nperm=200, norm.method="TMM")
 }
 }

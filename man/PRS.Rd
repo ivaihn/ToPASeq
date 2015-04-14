@@ -9,7 +9,7 @@ A function runs PRS method on a gene expression data matrix or count matrix and 
 }
 \usage{
 PRS(x, group, pathways, type, preparePaths=TRUE, norm.method=NULL, test.method=NULL, p.th=0.05, logFC.th=2, nperm=1000,
- both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="entrez", convertBy=NULL)
+ both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="none", convertBy=NULL)
 }
 
 \arguments{
@@ -58,7 +58,9 @@ Ivana Ihnatova
 
 if (require(DEGraph)) {
   data("Loi2008_DEGraphVignette")
-  PRS( exprLoi2008, classLoi2008, biocarta[1:10], type="MA",  logFC.th=-1, nperm=100)
+  pathways<-pathways("hsapiens","biocarta")[1:10]
+  pathways<-lapply(pathways, function(p) as(p,"pathway"))
+  PRS( exprLoi2008, classLoi2008, pathways, type="MA",  logFC.th=-1, nperm=100)
 }
 \dontrun{
 if (require(gageData)) {
@@ -66,8 +68,9 @@ if (require(gageData)) {
  data(hnrnp.cnts)
  hnrnp.cnts<-hnrnp.cnts[rowSums(hnrnp.cnts)>0,]
  group<-c(rep("sample",4), rep("control",4))
- 
- PRS(hnrnp.cnts, group, biocarta[1:10], type="RNASeq", logFC.th=-1, nperm=100, test="vstlimma")
+ pathways<-pathways("hsapiens","biocarta")[1:10]
+  pathways<-lapply(pathways, function(p) as(p,"pathway"))
+ PRS(hnrnp.cnts, group, pathways, type="RNASeq", logFC.th=-1, nperm=100, test="vstlimma")
 }
 }
 }

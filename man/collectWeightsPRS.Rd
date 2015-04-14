@@ -38,9 +38,12 @@ A list, each slot is a vector of gene-level weights for one pathway
 Ivana Ihnatova  
 }
 \examples{
-de<-setNames(rnorm(30),sample(nodes(kegg[[1]]),30))
-all<-nodes(kegg[[1]])
-path<-preparePathways(kegg[1:3], method="SPIA", genes=all, both.direction=TRUE, convertTo="none")
+pathways<-pathways("hsapiens","kegg")[1:3]
+  pathways<-lapply(pathways, function(p) as(p,"pathway"))
+de<-setNames(rnorm(30),sample(nodes(pathways[[1]]),30))
+all<-nodes(pathways[[1]])
+
+path<-preparePathways(pathways[1:3], method="SPIA", genes=all, both.direction=TRUE, convertTo="none")
 collectWeightsSPIA(de, all, path)
 }
 \keyword{ univar }

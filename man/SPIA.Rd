@@ -9,7 +9,7 @@ The function runs SPIA method on microarray or RNA-Seq data. The implementatio i
 }
 \usage{
 SPIA(x, group, pathways, type, preparePaths=TRUE, norm.method=NULL, test.method=NULL, p.th=0.05, logFC.th=2, nperm=1000, combine="fisher", 
- both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="entrez", convertBy=NULL)
+ both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="none", convertBy=NULL)
 }
 
 \arguments{
@@ -73,15 +73,20 @@ Ivana Ihnatova
 
 if (require(DEGraph)) {
   data("Loi2008_DEGraphVignette")
-  p<-biocarta[1:2]
-  SPIA(exprLoi2008, classLoi2008,p, type="MA", logFC.th=-1)
+ pathways<-pathways("hsapiens","biocarta")[1:10]
+  pathways<-lapply(pathways, function(p) as(p,"pathway"))
+  SPIA(exprLoi2008, classLoi2008,pathways, type="MA", logFC.th=-1)
 }
 \dontrun{
 if (require(gageData)) {
 
  data(hnrnp.cnts)
+  hnrnp.cnts<-hnrnp.cnts[rowSums(hnrnp.cnts)>0,]
  group<-c(rep("sample",4), rep("control",4))
- SPIA( hnrnp.cnts, group, biocarta[1:10], type="RNASeq",  logFC.th=-1, IDs="entrez", test="vstlimma")
+ 
+  pathways<-pathways("hsapiens","biocarta")[1:10]
+  pathways<-lapply(pathways, function(p) as(p,"pathway"))
+ SPIA( hnrnp.cnts, group, pathways, type="RNASeq",  logFC.th=-1, IDs="entrez", test="vstlimma")
  }
 }
 }

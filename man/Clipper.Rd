@@ -9,7 +9,7 @@ clipper is a method for topological gene set analysis. It implements a two-step 
 }
 \usage{
 Clipper(x, group, pathways, type, preparePaths=TRUE, norm.method=NULL, test.method=NULL,  method="mean", testCliques=FALSE, nperm=1000, alphaV=0.05, b=NULL, permute=TRUE,
-   both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="entrez", convertBy=NULL)
+   both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="none", convertBy=NULL)
 }
 
 \arguments{
@@ -60,7 +60,9 @@ If there are NA's only in columns 3 to 7, then a junction tree could not be form
 
 if (require(DEGraph)) {
   data("Loi2008_DEGraphVignette")
-  Clipper( exprLoi2008, classLoi2008, kegg[1],type="MA")
+ pathways<-pathways("hsapiens","kegg")[1]
+  pathways<-lapply(pathways, function(p) as(p,"pathway"))
+  Clipper( exprLoi2008, classLoi2008, pathways,type="MA", convertTo="none")
 }   
 
 \dontrun{
@@ -69,7 +71,9 @@ if (require(gageData)) {
  data(hnrnp.cnts)
  hnrnp.cnts<-hnrnp.cnts[rowSums(hnrnp.cnts)>0,]
  group<-c(rep("sample",4), rep("control",4))
- Clipper(hnrnp.cnts, group,kegg[1:10], type="RNASeq",  norm.method="TMM")
+  pathways<-pathways("hsapiens","kegg")[1:3]
+  pathways<-lapply(pathways, function(p) as(p,"pathway"))
+ Clipper(hnrnp.cnts, group,pathways, type="RNASeq",  norm.method="TMM", convertTo="none")
  }
 }
     

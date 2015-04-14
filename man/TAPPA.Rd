@@ -9,7 +9,7 @@ The functions analyses the differential expression of pathways via TAPPA method.
 }
 \usage{
 TAPPA(x, group, pathways, type, preparePaths=TRUE, norm.method=NULL, test.method=NULL, test=t.test, normalize=TRUE, verbose=FALSE, both.directions=TRUE, 
-   maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="entrez", convertBy=NULL)
+   maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="none", convertBy=NULL)
 }
 
 \arguments{
@@ -55,7 +55,9 @@ Gao, S. and Wang, X. (2007) TAPPA: topological analysis of pathway phenotype ass
 
 if (require(DEGraph)) {
   data("Loi2008_DEGraphVignette")
-  TAPPA(exprLoi2008, classLoi2008, biocarta[1:10], type="MA")
+  pathways<-pathways("hsapiens","biocarta")[1:10]
+  pathways<-lapply(pathways, function(p) as(p,"pathway"))
+  TAPPA(exprLoi2008, classLoi2008, pathways, type="MA")
 }
 
 \dontrun{
@@ -64,7 +66,9 @@ if (require(gageData)) {
  data(hnrnp.cnts)
  group<-c(rep("sample",4), rep("control",4))
  hnrnp.cnts<-hnrnp.cnts[rowSums(hnrnp.cnts)>0,]
- TAPPA( hnrnp.cnts, group, biocarta[1:10], type="RNASeq", norm.method="TMM")
+pathways<-pathways("hsapiens","biocarta")[1:10]
+  pathways<-lapply(pathways, function(p) as(p,"pathway")) 
+ TAPPA( hnrnp.cnts, group, pathways, type="RNASeq", norm.method="TMM")
 }
 }
 }

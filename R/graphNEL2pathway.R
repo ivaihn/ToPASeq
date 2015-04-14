@@ -24,6 +24,7 @@ if ("edgeType" %in%  names(graph@edgeData@defaults) )   {
   dest<-unlist(sapply(1:nedges, function(i) rep(edg[,2][i], each=type.count[i])))
   dir<-rep(graph@graphData$edgemode, length(src))
   e<-data.frame(src=src, dest=dest, direction=dir, type= unname(unlist(type.split)), stringsAsFactors=FALSE) 
+    e<-e[order(e[,1],e[,2],e[,4]),]
   } else    {
   dir<-rep(graph@graphData$edgemode, nrow(edg))
 	type<-rep("process(indirect effect)", nrow(edg))
@@ -31,13 +32,13 @@ if ("edgeType" %in%  names(graph@edgeData@defaults) )   {
 e<-data.frame(src=edg[,1], dest=edg[,2], direction=dir, type=type, stringsAsFactors=FALSE) 
 }
 
-e[,3]<-factor(as.character(e[,3]), levels=c("directed", "undirected"))
-e[,4]<-factor(as.character(e[,4]), exclude=NULL)
+
 
 rownames(e)<-NULL
 e[e[,4]=="binding" | e[,4]=="process(indirect)" | e[,4]=="process" ,3]<-"undirected"
 
-
+e[,3]<-factor(as.character(e[,3]), levels=c("directed", "undirected"))
+e[,4]<-factor(as.character(e[,4]), exclude=NULL)
 
 gr<-new("pathway", title=title, nodes=nodes, edges=e, 
 ident=ident, database=database, species=species, 
