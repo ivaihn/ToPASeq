@@ -1,7 +1,7 @@
 Package: ToPASeq
 Type: Package
 Title: Package for Topology-based Pathway Analysis of RNASeq data
-Version: 1.1.9
+Version: 1.2.0
 Date: 2014-27-05
 Author: Ivana Ihnatova, Eva Budinska
 Maintainer: Ivana Ihnatova <ihnatova@iba.muni.cz>
