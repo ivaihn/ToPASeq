@@ -42,7 +42,7 @@ rand<-colSums(weight.rn*perms[g,])*(nf.rn/length(g))
 obs<-(obs-mean(rand))/sd(rand)
 rand<-(rand-mean(rand))/sd(rand)
 p.value<-sum(rand >= obs)/length(rand)
-res<-data.frame(nPRS=obs, p.value=p.value)
+res<-c(nPRS=obs, p.value=p.value)
 return(res)
 }
 
@@ -54,10 +54,11 @@ PRSweights<-function(path, de, all){
   
  ind<-g %in% names(de)
  if (length(g)>0 & sum(ind)>=1) weight<-downstreamCpp(set, g, g[ind]) +1 else weight<-setNames(rep(0, length(g)),g)
- 
- weight[!ind]<-0
- return(weight)
+wei<-setNames(rep(0, length(g)),g)
+ wei[ind]<-weight 
+ return(wei)
  }
+ 
  
  
 prs<-function(all, de, pathways, nperm){
@@ -66,7 +67,9 @@ perms<-preparePerms(all=all, de=de, nperm=nperm, method="PRS")
 
 out<-catchErr(pathways, function(p) PRSSingle(p[[1]], de, all, perms))
 
-if (length(out[[1]])>0) {
+
+if(length(out[[1]])>0){
+out[[1]]<-data.frame(t(vapply(out[[1]], function(x) x, numeric(2))))
 out[[1]]$q.value<-p.adjust(out[[1]]$p.value,"fdr") }
 
 return(out)

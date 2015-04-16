@@ -213,8 +213,9 @@ PVT<-function (x, group, dag, alpha, variance = FALSE, s1 = NULL, s2 = NULL) {
     return(res)
 }
 
-CMT<-function (x, group, dag, alpha, perm.num = 1000, paired = FALSE) 
+CMT<-function (x, group, dag, alpha, perms = 1000, paired = FALSE) 
 {
+    group<-as.numeric(factor(group))
     y1<-t(x[,group==1])
     y2<-t(x[,group==2])
     
@@ -246,7 +247,7 @@ CMT<-function (x, group, dag, alpha, perm.num = 1000, paired = FALSE)
                 r <- list(alpha.obs = 1 - pf(t.value, p, np), 
                   t.obs = t.value)
             } else if (check[i]) {
-                r <- .mult.test(y1.cli, y2.cli, perm.num)
+                r <- .mult.test(y1.cli, y2.cli, perms)
             } else {
                 r <- .hote(y1.cli, y2.cli, TRUE)
             }
@@ -289,6 +290,7 @@ CMT<-function (x, group, dag, alpha, perm.num = 1000, paired = FALSE)
 }
 
 CVT<-function (x, group, dag, alpha) {
+    group<-as.numeric(factor(group))
     y1<-t(x[,group==1])
     y2<-t(x[,group==2])
     
@@ -342,12 +344,33 @@ topologyGSA<-function(x, group, pathways, test="mean", alpha, both.directions, .
   test(x, group, p[[1]], alpha, ...)
 })
 
-res<-sapply(out[[1]], function(x) unlist(x[sapply(x, function(y) mode(y) %in% c("numeric", "logical"))]))
+if (length(out[[1]])>0)  {res<-sapply(out[[1]], function(x) unlist(x[sapply(x, function(y) mode(y) %in% c("numeric", "logical"))])) 
 #graphs<-sapply(out[[1]], function(x) (x[sapply(x, function(y) mode(y) %in% c("S4", "list"))]))
 out[[1]]<-data.frame(t(res))
 if (length(out[[1]]>0)) out[[1]]$q.value<-p.adjust(out[[1]][,"p.value"],"fdr")
-
+}
 return(out)
 }
 
-
+testCliques<-function(x, group, pathways, test, alpha,  ...){
+xx<-list()
+if (test=="mean") {
+xx<-lapply(pathways, function(p) {
+cat(p[[2]],"\n")
+ g<-nodes(p[[1]]) 
+ g<-g[g %in% rownames(x)]
+ res<-CMT(x[g,], group, p[[1]], alpha, ...) 
+ res<-list(p.value=res$p.value, cliques=res$cliques)
+ })
+}
+if (test=="var") {
+xx<-lapply(pathways, function(p) {
+cat(p[[2]],"\n")
+ res<-CVT(x, group, p[[1]], alpha) 
+ res<-list(p.value=res$p.value, cliques=res$cliques)
+ })
+ 
+ 
+ }
+return(xx)
+}

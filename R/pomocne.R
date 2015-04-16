@@ -145,6 +145,8 @@ buildGraphNEL<-function(nodes, edges, sym)
     return(g)
 }
 
+
+
 #Rgraphviz
 getRenderPar<-function (g, name, what = c("nodes", "edges", "graph")) 
 {

@@ -95,8 +95,9 @@ plot.topResult<-function(x, which, graphs, stats="logFC", convert=TRUE, IDs="ent
 res<-x
 
  g<-graphs[[which]]
- if (convert) gc<-convertIdentifiers(graphs[[which]],IDs) else gc<-g
- gp<-convertIdentifiers(graphs[[which]],graphIDs)
+ g<-convertIdentifiersByVector(g, setNames(paste("EntrezGene:",nodes(g),sep=""), nodes(g)))
+ if (convert) gc<-.convertIdentifiers(graphs[[which]],IDs) else gc<-g
+ gp<-.convertIdentifiers(graphs[[which]],graphIDs)
  deg.table<-x$degtable
  
  sigpal<-colorRampPalette(pallete.colors)
@@ -106,7 +107,7 @@ res<-x
  
 if ("topResultC" %in% class(res)) {
  cliq<-res$topo.sig[[which]]
- NodeTable<-makeNodeTable(g, gc, gp, breaks, deg.table, sigpal, tsig.whole, tsig, mis.col=na.col, p.th=alpha, col.lim=col.lim )
+ NodeTable<-makeNodeTable(g, gc, gp, breaks, deg.table, sigpal, tsig.whole=1, tsig=1, mis.col=na.col, p.th=alpha, col.lim=col.lim )
  EdgeList<-makeEdgeList(gp, defaultEdgeAttrs)
 
 cols<-cli.color

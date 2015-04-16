@@ -28,12 +28,13 @@ if (method=="PWEA") {
   if (type=="MA"){
     out<-processMA(x, group)
     obs<-testMA(out[[1]], out[[2]])
+    message("Preparing permutations..\n")
     perm<-parDE(out[[1]], out[[2]], testMA, nperm, ncores)
     out<-list(obs, perm)
     } else
   if (type=="DEtable") {
   if (length(x)!=2) stop("The input data must be a list of length two (observed and random statistics)")
-  if (!all(colnames(x[1])==c("ID", "logFC","t","pval","padj"))) stop('Colnames of the table differ from c("ID", "logFC","t","pval"."padj")"')
+  if (!all(colnames(x[[1]])==c("ID", "logFC","t","pval","padj"))) stop('Colnames of the table differ from c("ID", "logFC","t","pval"."padj")"')
     out<-x
    } else stop("This inpout type is not supported for the selected method")  
   
@@ -116,7 +117,7 @@ contrast.matrix = limma::makeContrasts(contrasts="V2-V1", levels=design)
 fit2 = limma::contrasts.fit(fit, contrast.matrix)
 fit2 = limma::eBayes(fit2)
 results <- limma::decideTests(fit2)
-deg.table = limma::topTable(fit2, coef=1, adjust.method="BH", number=nrow(x), genelist=rownames(x))
+deg.table = limma::topTable(fit2, coef=1, adjust.method="BH", number=nrow(x), genelist=rownames(x), sort.by="none")
 deg.table<-data.frame(ID=rownames(deg.table), logFC=deg.table$logFC, t=deg.table$t,  pval=deg.table$P.Value, padj=deg.table$adj.P.Val)
 return(deg.table)
 }
@@ -147,7 +148,7 @@ return(tmp)
 }
 
 perm.test<-function(i, test){
-function(i,exprs, group){test(exprs, sample(group))}
+function(i,exprs, group){if (i %% 10==0) cat(i,"\n"); test(exprs, sample(group))}
 }
 
 
@@ -197,8 +198,6 @@ return(pathways)
 # pomocne
 preparePerms<-function(de=NULL, all=NULL, x=NULL, group=NULL, nperm=NULL, test=NULL, method){
 if (method=="PRS"){
-  print(head(all))
-  print(head(de))
     ind<-as.numeric(all %in% names(de))
     perms.ind<-replicate(nperm, sample(ind))
     rownames(perms.ind)<-all

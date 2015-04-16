@@ -1,7 +1,7 @@
 clipperSingle<-function(expr, classes, g, nperm, alphaV, b, permute, method){
 
 out<-list(unlist(pathQ(expr, classes, g, nperm=nperm, alphaV=alphaV, b=nperm, permute=TRUE)),
-  easyClip(expr, classes, g, method ="mean"))
+  easyClip(expr, classes, g, method =method))
 
 
  return(out)
@@ -19,7 +19,9 @@ clipperSingle(expr, classes, p[[1]], nperms, alphaV, b, permute, method)
 })
 cliq.test<-list()
 if (testCliques) {
+message("Testing cliques\n")
  cliq.test<-lapply(pathways, function(p) {
+ cat(p[[2]],"\n")
  if (method=="mean") cliq<-cliqueMeanTest(expr, classes, p[[1]], nperms, alphaV, b, permute=permute)
  if (method=="var") cliq<-cliqueVarianceTest(expr, classes, p[[1]], nperms, alphaV, b, permute=permute)
  return(cliq)

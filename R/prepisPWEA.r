@@ -43,7 +43,9 @@ gseaScores<-function (geneList, geneSet, exponent = 1, fortify = FALSE)
     Nh <- length(geneSet)
     Phit <- Pmiss <- numeric(N)
     hits <- names(geneList) %in% geneSet
-    Phit[hits] <- abs(geneList[hits])^exponent
+ if (length(exponent)>1) Phit[hits] <- abs(geneList[hits])^exponent[names(geneList[hits])] else
+     Phit[hits] <- abs(geneList[hits])^exponent
+
     NR <- sum(Phit)
     Phit <- cumsum(Phit/NR)
     Pmiss[!hits] <- 1/(N - Nh)
@@ -73,7 +75,9 @@ gseaScoresCols<-function (geneList, geneSet, exponent = 1) {
 
     hits <- rownames(geneList) %in% geneSet
 
-    Phit[hits,] <- abs(geneList[hits,])^exponent
+     if (length(exponent)>1) Phit[hits,] <- abs(geneList[hits,])^exponent[names(geneList[hits,])] else
+     Phit[hits,] <- abs(geneList[hits,])^exponent
+
     NR <- colSums(Phit)
     NR <- matrix(rep(NR, each=N), nrow=N)
     Phit <- apply(Phit/NR, 2, cumsum)
@@ -117,13 +121,13 @@ prepareTIF<-function(pathways, exprs, alpha){
 all.genes<-rownames(exprs)
 
 inP<-lapply(pathways, function(x) {
- exprs.valid<-extractsubset(exprs, x)$x
- return(TIF(x, exprs.valid, alpha))
+ exprs.valid<-extractsubset(exprs, x[[1]])$x
+ return(TIF(x[[1]], exprs.valid, alpha))
  }
  )
 
 outP<-lapply(pathways, function(p){
-g<-sum(! all.genes %in% nodes(p))
+g<-sum(! all.genes %in% nodes(p[[1]]))
 return(notPTIF(inP, g))
 })
 
@@ -132,17 +136,31 @@ return(Map(c, inP, outP))
 
 PWEASingle<-function(p, geneList, tif, perms){
 obs<-gseaScores(geneList, nodes(p), tif, fortify=FALSE)
-rnd<-gseaScores(perms, nodes(p), tif)
+rnd<-gseaScoresCols(perms, nodes(p))
 p<-sum(obs>= rnd)/ length(rnd)
 return(c(ES=obs, p.value=p))
 }
 
+parsePerms<-function(xx){
+ids<-xx[,1]$ID
+out<-sapply(seq_len(ncol(xx)), function(i) {
+m<-match(ids, as.character(xx[,i]$ID))
+xx[,i]$t[m]
+})
+rownames(out)<-ids
+return(out)
+}
+
 pwea<-function(obs, perms, tif, pathways, alpha){
 
-geneList<-obs$stat
 
-out<-catchErr(pathways, function(p) PWEASingle(p[[1]], geneList, tif[p@title], perms))
-
+geneList<-obs$t
+names(geneList)<-obs$ID
+perms<-parsePerms(perms)
+out<-catchErr(pathways, function(p) PWEASingle(p[[1]], geneList, tif[[p[[2]]]], perms))
+if(length(out[[1]])>0){
+out[[1]]<-data.frame(t(vapply(out[[1]], function(x) x, numeric(2))))
 out[[1]]$q.value<-p.adjust(out[[1]]$p.value,"fdr")
+}
 return(out)
 }

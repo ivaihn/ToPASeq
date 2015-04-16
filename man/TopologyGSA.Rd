@@ -8,7 +8,7 @@ Function to use TopologyGSA method on microarray or RNA-Seq data
 TopologyGSA method uses graphical models to test the differential expression of a pathway. It also highlights pathway componenets involved in the deregulation. 
 }
 \usage{
-TopologyGSA(x, group, pathways, type, preparePaths=TRUE, norm.method=NULL, test.method=NULL , method="mean", alpha=0.05, ..., 
+TopologyGSA(x, group, pathways, type, preparePaths=TRUE, norm.method=NULL, test.method=NULL , method="mean", alpha=0.05, testCliques=FALSE, ..., 
    both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="none", convertBy=NULL )
 }
 
@@ -35,6 +35,7 @@ Either \code{"var"} and \code{"mean"}. Determine the type of test used by topolo
  \item{alpha}{
 Numeric, threshold for statistical significance of variance test. It influences the method for the mean test
 }
+\item{testCliques}{Logical, if \code{TRUE}, then the test is also performed on individual cliques. It can be very computationally complex.}
 \item{...}{Other arguments to be passed to the method. See details for better explanation}
 \item{both.directions, maxNodes, minEdges, commonTh, filterSPIA, convertTo, convertBy}{Arguments for the \code{preparePathways()}}
  
@@ -76,7 +77,8 @@ if (require(DEGraph)) {
   pathways<-pathways("hsapiens","biocarta")[1:10]
   pathways<-lapply(pathways, function(p) as(p,"pathway"))p<-biocarta[1:10]
   
-  TopologyGSA(exprLoi2008, classLoi2008, pathways, type="MA", test="mean", alpha=0.05, perms=200)
+  TopologyGSA(exprLoi2008, classLoi2008, pathways, type="MA", method="mean", alpha=0.05, perms=200)
+    TopologyGSA(exprLoi2008, classLoi2008, pathways, type="MA", method="mean", alpha=0.05, perms=200, testCliques=TRUE)
   }
   
 if (require(gageData)) {
@@ -86,8 +88,8 @@ if (require(gageData)) {
  hnrnp.cnts<-hnrnp.cnts[rowSums(hnrnp.cnts)>0,]
  pathways<-pathways("hsapiens","biocarta")[1:10]
   pathways<-lapply(pathways, function(p) as(p,"pathway"))
- TopologyGSA(hnrnp.cnts, group,pathways, type="RNASeq",test="mean", alpha=0.05, 
-   nperm=200, norm.method="TMM")
+ TopologyGSA(hnrnp.cnts, group,pathways, type="RNASeq",method="mean", alpha=0.05, 
+   perms=200, norm.method="TMM")
 }
 }
 }
