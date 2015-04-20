@@ -498,7 +498,7 @@ The final visualization of the results for one pathway is method specific. Three
 
 The significant cliques are enhanced in the results of TopologyGSA and Clipper. Since the whole analysis with these method is done on transformed topology (moralized then triangulated graphs), the transformed topology is also drawn in the visualization. The user can specify the color which used for edges between nodes from a significant clique (default value is \texttt{cli.color="red"} and can be either a character or a function that returns a color pallette) and the color of nodes (default value is \texttt{cli.node.color="white"}. The \texttt{alpha} controls the significance threshold for the cliques. If \texttt{add.legend=TRUE} then a legend is drawn containing the colors of edges of individual cliques, their genes and p-value. The \texttt{intersp} can be used to adjust the space between items of legened.
 
-<< plot1, width=8, height=7, eval=FALSE>>=
+<< plot1, fig=false, width=8, height=7, eval=false>>=
 #Fails during check
 library(gageData)
 data(hnrnp.cnts)

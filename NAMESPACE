@@ -20,6 +20,7 @@ exportMethods(nodes, edges)
 exportMethods(intersection, join, union, subGraph, clearNode, removeEdge, removeNode, addEdge, addNode, changeDirection, changeInteraction,"nodes<-")
 
 exportMethods(degree, numNoEdges, mostEdges, acc, connComp, edges, isAdjacent, isDirected, isConnected, edgemode, numEdges, numNodes, edgeNames)
+exportMethods(convertIdentifiers)
 
 
 S3method(print, topResult)
@@ -33,6 +34,7 @@ import(graphite, gRbase, graph, locfit, methods, Rgraphviz)
 importFrom(DESeq2, DESeqDataSetFromMatrix, DESeq, results, estimateSizeFactors, estimateDispersions, nbinomWaldTest, rlogTransformation, varianceStabilizingTransformation)
 importFrom(GenomicRanges, assay, colData, "colData<-")
 importFrom(KEGGgraph, parseKGML)
+importFrom(AnnotationDbi,select, columns)
 
 importFrom(R.utils, reassignInPackage)
 importFrom(edgeR,DGEList, calcNormFactors)

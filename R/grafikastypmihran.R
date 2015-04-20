@@ -84,8 +84,8 @@ plotCliques<-function(info, alpha = 0.05, color="red", node.color="white", nodes
  }
 
 ########################
-plot.topResult<-function(x, which, graphs, stats="logFC", convert=TRUE, IDs="entrez", graphIDs="symbol", col.lim=NULL,reduction=list(), agg.fun=function(x) mean(x, na.rm=TRUE),
- logical=NULL, sig.th=0.1, title=TRUE, cex.main, breaks=c(100,5),
+plot.topResult<-function(x, which, graphs, stats="logFC", convert=TRUE, IDs="ENTREZID", graphIDs="SYMBOL", col.lim=NULL,reduction=list(), agg.fun=function(x) mean(x, na.rm=TRUE),
+ logical=NULL, sig.th=0.1, title=TRUE, cex.main=1, breaks=c(100,5),
   pallete.colors=c("blue","white", "red"), na.col="grey87", cli.color="red", layout="dot", nodesize=1, fontsize=14, 
   alpha=0.05, add.legend=TRUE, statName="Log fold change", ...  ){
 
@@ -95,9 +95,8 @@ plot.topResult<-function(x, which, graphs, stats="logFC", convert=TRUE, IDs="ent
 res<-x
 
  g<-graphs[[which]]
- g<-convertIdentifiersByVector(g, setNames(paste("EntrezGene:",nodes(g),sep=""), nodes(g)))
- if (convert) gc<-.convertIdentifiers(graphs[[which]],IDs) else gc<-g
- gp<-.convertIdentifiers(graphs[[which]],graphIDs)
+ if (convert) gc<-convertIdentifiers(graphs[[which]],IDs) else gc<-g
+ gp<-convertIdentifiers(graphs[[which]],graphIDs)
  deg.table<-x$degtable
  
  sigpal<-colorRampPalette(pallete.colors)
@@ -114,8 +113,8 @@ cols<-cli.color
  att<-adjustAttrCli(gc, NodeTable, EdgeList, cliq[[1]], cliq[[2]], cols, alpha, remNodes=NULL)
 
 xxg<-renderOrig(gp, NodeTable, EdgeList, nodesize, fontsize)
-xxred<-renderReduced( gp, reduction, att[[1]], att[[2]], xxg, fontsize)
-drawGraph(xxred, res, which, NodeTable, nodesize, fontsize, statName=statName, cex.main=cex.main, legend=add.legend)
+xxred<-renderReduced( gp, reduction, att[[1]], att[[2]], xxg, nodesize, fontsize, agg.fun)
+drawGraph(xxred, res, which, NodeTable, nodesize, fontsize, statName=statName, cex.main=cex.main,col.lim=col.lim, breaks,  legend=add.legend)
 }
 
 if ("topResultW" %in% class(res) ){

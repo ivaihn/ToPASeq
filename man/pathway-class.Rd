@@ -35,6 +35,7 @@
 \alias{changeDirection}
 \alias{changeInteraction,character,character,pathway,character,logical-method}
 \alias{changeInteraction}
+\alias{convertIdentifiers,pathway,character-method}
 
 \title{Class \code{"pathway"}}
 \description{
@@ -49,11 +50,8 @@
       source node, destination node, edge direction and type.
     }
     \item{\code{ident}:}{Object of class \code{"vector"}.
-      The type of identifiers used to label the nodes. The value of
-      "native" means that the identifiers are those present in the
-      original pathway definition.
+      The type of identifiers used to label the nodes. 
 
-      See \code{\link{convertIdentifiers}} to convert them.
     }
     \item{\code{database}:}{Object of class \code{"vector"}.
       The name of the database from which the pathway was retrieved.
@@ -113,7 +111,8 @@
 
 \item{removeNode \code{signature(node = "character", object = "pathway")}}{removes node(s) \code{node} from a pathway \code{object}}
 
-\item{nodes<- \code{signature(object = "pathway", value = "character")}}{sets node labels of pathway \code{object} to \code{value}}
+\item{nodes<- \code{signature(x = "pathway", value = "character")}}{sets node labels of pathway \code{object} to \code{value}}
+\item{convertIdentifiers \code{signature(x = "pathway", to = "character")}}{converts the node identifiers/labels in a pathway. \code{to} is the name of one of the columns provided by an Annotation package (e.g.\code{"SYMBOL"}}
 
 }
 
