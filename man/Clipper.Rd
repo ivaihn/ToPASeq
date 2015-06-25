@@ -36,7 +36,7 @@ Logical, by default the pathways are transformed with \code{preparePathways()}. 
 \item{b}{number of permutations for mean analysis}
 \item{permute}{always performs permutations in the concentration matrix test. If FALSE, the test is made using the asymptotic distribution of the log-likelihood ratio. This option should be use only if samples size is >=40 per class}
 \item{both.directions, maxNodes, minEdges, commonTh, filterSPIA, convertTo, convertBy}{Arguments for the \code{preparePathways()}}
-   
+ 
 }
 \value{
 A list,

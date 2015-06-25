@@ -49,6 +49,7 @@ importFrom(TeachingDemos, shadowtext)
 importFrom(limma,  lmFit, makeContrasts, contrasts.fit, eBayes, decideTests, topTable, voom) 
 importMethodsFrom(graph, edgeData, edgeDataDefaults)
 
+import(doParallel)
 
 importFrom(qpgraph,qpIPF)
 importFrom(RBGL,johnson.all.pairs.sp)

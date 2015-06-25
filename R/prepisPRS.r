@@ -61,7 +61,7 @@ wei<-setNames(rep(0, length(g)),g)
  
  
  
-prs<-function(all, de, pathways, nperm){
+prs<-function(de, all, pathways, nperm){
 
 perms<-preparePerms(all=all, de=de, nperm=nperm, method="PRS")
 

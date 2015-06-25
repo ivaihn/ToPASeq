@@ -28,8 +28,9 @@ if (method=="PWEA") {
   if (type=="MA"){
     out<-processMA(x, group)
     obs<-testMA(out[[1]], out[[2]])
+    test<-testMA
     message("Preparing permutations..\n")
-    perm<-parDE(out[[1]], out[[2]], testMA, nperm, ncores)
+    perm<-parDE(out[[1]], out[[2]], test, nperm, ncores)
     out<-list(obs, perm)
     } else
   if (type=="DEtable") {
@@ -136,20 +137,28 @@ return(deg.table)
 
 
 parDE<-function(x, group, test, nperm, ncores=NULL){
-if (is.null(ncores)) 
- ncores<-detectCores() else ncores=1
-cl <- makeCluster(rep("localhost",ncores))
-i<-1
-ptest<-perm.test(i, test)
-clusterExport(cl,deparse(substitute(test)))
-tmp<-parSapply(cl, seq_len(nperm), get("ptest"), x, group)
-stopCluster(cl)
-return(tmp)
-}
+if (is.null(ncores)) ncores<-detectCores()
+
 
 perm.test<-function(i, test){
 function(i,exprs, group){if (i %% 10==0) cat(i,"\n"); test(exprs, sample(group))}
 }
+if (.Platform$OS.type=="unix") cl <- makeCluster(ncores, type="FORK") else
+cl <- makeCluster(rep("localhost",ncores))
+
+i<-1
+ptest<-perm.test(i, test)
+clusterExport(cl,"test")
+clusterExport(cl,"test", envir=environment())
+#clusterExport(cl,deparse(substitute(test)))
+#clusterExport(cl,deparse(substitute(test)), envir=environment())
+tmp<-parSapply(cl, seq_len(nperm), ptest, x, group)
+stopCluster(cl)
+
+
+return(tmp)
+}
+
 
 
 applyTh<-function(x, p.th, logFC.th){

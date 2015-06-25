@@ -27,10 +27,10 @@ PMT<-function (x, group, dag, alpha, perms, variance = TRUE, paired = FALSE)
         s <- .hote(y1, y2, FALSE, cli.moral)
         y1.num <- nrow(y1)
         stat.perm <- vector("numeric", perms)
-        for (i in ncol(perms)) {
-            
-            y1.perm <- y[perms[,i]==1, ]
-            y2.perm <- y[perms[,i]==2, ]
+        for (i in seq_len(perms)) {
+            group.rn<-sample(group)
+            y1.perm <- y[group.rn==1, ]
+            y2.perm <- y[group.rn==2, ]
             stat.perm[i] <- .hote(y1.perm, y2.perm, FALSE, cli.moral)$t.obs
         }
         p.value <- sum(stat.perm >= s$t.obs)/perms

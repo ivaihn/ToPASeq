@@ -12,7 +12,7 @@ if (length(res)>0) {
 
    ord<-as.numeric(sapply(1:nc, function(i) seq(i,3*nc, nc)))
 
-out<-cbind(p, pFourier, k, deparse.level=0)[,ord]
+out<-cbind(p, pFourier, k, deparse.level=0)[,ord, drop=FALSE]
 tmp<-c("p","pFourier", "k")
 
 colnames(out)<-paste("Comp",rep(1:nc, each=3),".",tmp, sep="")

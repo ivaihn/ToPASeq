@@ -17,7 +17,7 @@ Clipper<-function(x, group, pathways, type, preparePaths=TRUE, norm.method=NULL,
    both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="none", convertBy=NULL){
 gedm<-prepareData(x, group, type, method="clipper", norm.method)
 if (preparePaths) paths<-preparePathways(pathways, method="clipper", both.directions, rownames(gedm[[1]]), maxNodes, minEdges, commonTh, filterSPIA, convertTo, convertBy ) else paths<-pathways
-res<-CLIPPER(paths, gedm[[1]], gedm[[2]], method, testCliques, nperm, alphaV, b, permute)
+ res<-CLIPPER(paths, gedm[[1]], gedm[[2]], method, testCliques, nperm, alphaV, b, permute)
 if (type=="MA") deg.table<-testMA(gedm[[1]], gedm[[2]])
 if (is.null(test.method)) test.method<-"voomlimma"
 if (type=="RNASeq") deg.table<-testRNAseq(x, group, test.method)

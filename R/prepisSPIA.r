@@ -55,7 +55,7 @@ noMy <- sum(!is.na(X))
 okg <- intersect(rownames(M), all)
 ok <- rownames(M) %in% all
 
-if (!(noMy) > 0 & (abs(det(M)) > 1e-07)) {
+if (!((noMy) > 0 & (abs(det(M)) > 1e-07))) {
   pb <- ph <- smPFS <- pcomb <- tAraw <- tA <- ob <- NA 
   pfs<- rep(NA, length(X)) } else
 {
@@ -131,8 +131,9 @@ noMy <- sum(!is.na(X))
 okg <- intersect(rownames(M), all)
 ok <- rownames(M) %in% all
 
-if (!(!(noMy) > 0 & (abs(det(M)) > 1e-07))) {
- pfs<-rep(NA, length(X))
+if (!((noMy) > 0 & (abs(det(M)) > 1e-07))) {
+ pfs<-setNames(rep(NA, length(X)), rownames(M))
+ 
  } else {
 X[is.na(X)] <- 0
 pfs <- solve(M, -X)
