@@ -1,19 +1,19 @@
-\name{graphNEL2pathway}
-\alias{graphNEL2pathway}
+\name{graphNEL2Pathway}
+\alias{graphNEL2Pathway}
 
 \title{
-Function to coerce a graphNEL to a pathway
+Function to coerce a graphNEL to a Pathway
 }
 \description{
-The function coerces a graphNEL to a pathway. It attempts to recover the edge types from \code{"edgeType"} attribute of \code{edgeData}. The result contains only the edge types present in the graph. If the \code{edgeData} do not contain this attribute, then \code{"process(indirect effect)"} is used in order to preserve directionality. 
+The function coerces a graphNEL to a Pathway. It attempts to recover the edge types from \code{"edgeType"} attribute of \code{edgeData}. The result contains only the edge types present in the graph. If the \code{edgeData} do not contain this attribute, then \code{"process(indirect effect)"} is used in order to preserve directionality. 
 }
 \usage{
-graphNEL2pathway(graph, name = "pathway", ident = "unknown", database = "unknown", species = "unknown", date = NULL)
+graphNEL2Pathway(graph, name = "pathway", ident = "unknown", database = "unknown", species = "unknown", date = NULL)
 }
 
 \arguments{
   \item{graph}{
-A graphNEL object to be coerced.
+A \code{graphNEL} object to be coerced.
 }
   \item{name}{
 A character, name of the pathway. Defaults to \code{"pathway"}
@@ -34,10 +34,10 @@ A date, the date the topology was created
 
 
 \value{
-A coerced \code{pathway}
+A coerced \code{Pathway}
 }
 \note{
-When this function is applied on \code{x} as reversed operation to \code{as(x,"pathway")} then the order of the edges may differ as well as the directionality of \code{"process(indirect)"} edges as they are set as \code{undirected} by graphNEL2Pathway.
+When this function is applied on \code{x} as reversed operation to \code{pathwayGraph} then the order of the edges may differ as well as the directionality of \code{"process(indirect)"} edges as they are set as \code{undirected} by graphNEL2Pathway.
 }
 \author{
 Ivana Ihnatova
@@ -45,14 +45,14 @@ Ivana Ihnatova
 
 
 \examples{
-pathway<-kegg[[1]]
-pathway<-as(pathway,"pathway")
-as(pathway,"graphNEL")
-graphNEL2pathway(as(pathway,"graphNEL"))
+pathway<-pathways("hsapiens","kegg")[[1]]
+pathway<-pathwayGraph(pathway)
+pathway
+graphNEL2Pathway(pathway)
 
 set.seed(123)
 rg <- randomEGraph(LETTERS[1:20], edges = 30)
-p<-graphNEL2pathway(rg)
+p<-graphNEL2Pathway(rg)
 p
 head(edges(p))
 }

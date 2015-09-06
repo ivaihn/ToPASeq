@@ -17,7 +17,7 @@ library(gRbase)
 
 graph <- dag(c("me","ve"),c("me","al"),c("ve","al"),c("al","an"),c("al","st"),c("an","st"),c("a","b1","b2"), c("b2","d"))
 graph<-addEdge("d", "b1", graph)
-res<- estimateCF(graphNEL2pathway(graph))
+res<- estimateCF(graphNEL2Pathway(graph))
 
 checkEquals(length(res),2)
 checkEquals(res[[2]][[1]],c("b1","b2"))
@@ -29,7 +29,7 @@ uG <- ug(~a:b+b:c+c:d+d:e+e:f+f:a)
 uG <- addEdge("c","a",uG)
 uG <- addEdge("b","d",uG)
 uG <- addEdge("a","d",uG)
-gr <- graphNEL2pathway(uG)
+gr <- graphNEL2Pathway(uG)
 
 gr<-changeInteraction(letters[1:4],c("a","b","c","d"), gr, rep("binding",6), FALSE)
 checkTrue(isComplex(c("a","b","c"), gr))
@@ -44,17 +44,17 @@ checkEquals(sapply(att, length),c(graphite2SPIA=52,beta=2))
  checkEquals(names(att), c("graphite2SPIA","beta"))
 }
 
-test_KEGG2pathway<-function(){
+test_KEGG2Pathway<-function(){
 file<-system.file("extdata", "hsa04610.xml", package = "ToPASeq")
-gr<-KEGG2pathway(file, nongene="keep")
+gr<-KEGG2Pathway(file, nongene="keep")
 checkEquals(numNodes(gr),74)
 checkEquals(numEdges(gr),111)
-checkEquals(gr@ident, "KEGGnative")
+checkEquals(gr@identifier, "KEGGnative")
 
-gr<-KEGG2pathway(file, nongene="discard")
+gr<-KEGG2Pathway(file, nongene="discard")
 checkEquals(numNodes(gr),69)
 checkEquals(numEdges(gr),105)
-checkEquals(gr@ident, "KEGGnative")
+checkEquals(gr@identifier, "KEGGnative")
 }
 
 test_reduceGraph<-function(){
@@ -71,7 +71,7 @@ checkIdentical("Gene identifiers dont match", obs)
 
 test_topoAnal<-function(){
 graph <- dag(c("me","ve"),c("me","al"),c("ve","al"),c("al","an"),c("al","st"),c("an","st"),c("a","b","c"), c("c","d"))
-g<-graphNEL2pathway(graph)
+g<-graphNEL2Pathway(graph)
 checkEquals(degree(g,"a"), c(a=2))
 checkEquals(mostEdges(g), "al")
 checkEquals(edgemode(g),"directed")

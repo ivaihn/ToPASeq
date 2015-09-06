@@ -13,7 +13,7 @@ estimateCF(graph)
 
 \arguments{
   \item{graph}{
-An object of class \code{pathway}
+An object of class \code{Pathway}
 }
 }
 
@@ -32,8 +32,8 @@ Ivana Ihnatova
  \code{\link{reduceGraph}}
 }
 \examples{
-pathway<-as(kegg[[1]], "pathway")
-estimateCF(pathway)
+path<-pathways("hsapiens","kegg")[[1]]
+estimateCF(path)
 }
 \keyword{manip }
 

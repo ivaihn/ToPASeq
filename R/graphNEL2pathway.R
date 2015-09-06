@@ -1,5 +1,5 @@
 
-graphNEL2pathway<-function(graph, name="pathway", 
+graphNEL2Pathway<-function(graph, name="pathway", 
  ident="unknown", database="unknown", species="unknown", date=NULL){
 title<-name
 nodes<-nodes(graph)
@@ -40,8 +40,13 @@ e[e[,4]=="binding" | e[,4]=="process(indirect)" | e[,4]=="process" ,3]<-"undirec
 e[,3]<-factor(as.character(e[,3]), levels=c("directed", "undirected"))
 e[,4]<-factor(as.character(e[,4]), exclude=NULL)
 
-gr<-new("pathway", title=title, nodes=nodes, edges=e, 
-ident=ident, database=database, species=species, 
+gr<-new("Pathway", id=title, title=title,  edges=e, 
+database=database,species=species, identifier=ident,  
 timestamp=timestamp)
 return(gr)
 }
+
+graphNEL2pathway<-function(graph, name="pathway", 
+ ident="unknown", database="unknown", species="unknown", date=NULL){
+ .Deprecated("graphNEL2Pathway")
+ }

@@ -74,7 +74,6 @@ Ivana Ihnatova
 if (require(DEGraph)) {
   data("Loi2008_DEGraphVignette")
  pathways<-pathways("hsapiens","biocarta")[1:10]
-  pathways<-lapply(pathways, function(p) as(p,"pathway"))
   SPIA(exprLoi2008, classLoi2008,pathways, type="MA", logFC.th=-1)
 }
 \dontrun{
@@ -85,7 +84,6 @@ if (require(gageData)) {
  group<-c(rep("sample",4), rep("control",4))
  
   pathways<-pathways("hsapiens","biocarta")[1:10]
-  pathways<-lapply(pathways, function(p) as(p,"pathway"))
  SPIA( hnrnp.cnts, group, pathways, type="RNASeq",  logFC.th=-1, IDs="entrez", test="vstlimma")
  }
 }

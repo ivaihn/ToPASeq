@@ -365,7 +365,7 @@ if (plot) title(paste(main, sig, sep="\n"), line=-2)
 return(paste(main, sig, sep="\n"))
 }
 
-drawGraph<-function(xxred, res, which, NodeTable, nodesize, fontsize, statName,  cex.main=1, col.lim=NULL, breaks, legend=TRUE){
+drawGraph<-function(xxred, res, which, NodeTable, nodesize, fontsize, statName,  cex.main=1, col.lim=NULL, breaks, sigpal, legend=TRUE, cex.legend=cex.legend){
 
 
 if (legend) layout(matrix(c(1,1,1,1,2,3), nrow=1)) 
@@ -386,7 +386,8 @@ stats<-stats[!is.na(stats)]
 col.lim<-range(stats)
 }
 
-if (legend) {makeLegend(bbox, categories, nodesize, fontsize, CC*1.1,  col.lim, breaks[1],"Log Fold-Change")
+
+if (legend) {makeLegend(bbox, categories, nodesize, fontsize, CC*1.1,  col.lim, breaks[1],sigpal, "Log Fold-Change", cex.legend)
 layout(1)
 #par(.pardefault)
 #graph.par(.graphpar)

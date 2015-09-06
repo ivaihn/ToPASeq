@@ -42,6 +42,8 @@ Numeric, threshold for statistical significance of variance test. It influences 
 }
 
 \details{
+The method requires a Directed Acyclic Graph (DAG). Therefore if a pathway contain also undirected or bidirected edges and error is thrown. 
+
 The user can further specify for the mean test:
 \enumerate{
 \item \strong{perms} number of permutations of the test,
@@ -75,7 +77,7 @@ Ivana Ihnatova
 if (require(DEGraph)) {
   data("Loi2008_DEGraphVignette")
   pathways<-pathways("hsapiens","biocarta")[1:10]
-  pathways<-lapply(pathways, function(p) as(p,"pathway"))p<-biocarta[1:10]
+
   
   TopologyGSA(exprLoi2008, classLoi2008, pathways, type="MA", method="mean", alpha=0.05, perms=200)
     TopologyGSA(exprLoi2008, classLoi2008, pathways, type="MA", method="mean", alpha=0.05, perms=200, testCliques=TRUE)
@@ -87,7 +89,6 @@ if (require(gageData)) {
  group<-c(rep("sample",4), rep("control",4))
  hnrnp.cnts<-hnrnp.cnts[rowSums(hnrnp.cnts)>0,]
  pathways<-pathways("hsapiens","biocarta")[1:10]
-  pathways<-lapply(pathways, function(p) as(p,"pathway"))
  TopologyGSA(hnrnp.cnts, group,pathways, type="RNASeq",method="mean", alpha=0.05, 
    perms=200, norm.method="TMM")
 }

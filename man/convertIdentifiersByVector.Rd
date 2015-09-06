@@ -13,7 +13,7 @@ convertIdentifiersByVector(pathway, conv.table, id.type="unknown")
 
 \arguments{
   \item{pathway}{
-An object of class \code{pathway}
+An object of class \code{Pathway}
 }
   \item{conv.table}{
 A named vector in which names correspond to the identifiers present in the pathway and values are the new identifiers to which conversion happens
@@ -24,7 +24,7 @@ A character, the type of the identifiers provided e.g \code{"TAIR"} for TAIR num
 }
 
 \value{
-A \code{pathway} in which identifiers have been converted
+A \code{Pathway} in which identifiers have been converted
 }
 
 \author{
@@ -36,7 +36,6 @@ Ivana Ihnatova
 
 \examples{
 g<-kegg[["Asthma"]]
-g<-as(g, "pathway")
 conv<-setNames(paste("gene", 1:length(nodes(g)), sep=""), nodes(g))
 gc<-convertIdentifiersByVector(g, conv, "dummy")
 nodes(gc)

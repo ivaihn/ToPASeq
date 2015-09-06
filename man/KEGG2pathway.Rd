@@ -1,14 +1,14 @@
-\name{KEGG2pathway}
-\alias{KEGG2pathway}
+\name{KEGG2Pathway}
+\alias{KEGG2Pathway}
 
 \title{
-Function to parse KEGG KGML file into a pathway
+Function to parse KEGG KGML file into a Pathway
 }
 \description{
-The function parses a KGML file from KEGG into a pathway. 
+The function parses a KGML file from KEGG into a Pathway. 
 }
 \usage{
-KEGG2pathway(file, expandGenes = TRUE, expandCom = TRUE, nongene = c("keep", "propagate", "discard"), ident = "KEGGnative", database = "KEGG", species = NULL)
+KEGG2Pathway(file, expandGenes = TRUE, expandCom = TRUE, nongene = c("keep", "propagate", "discard"), ident = "KEGGnative", database = "KEGG", species = NULL)
 }
 
 \arguments{
@@ -35,7 +35,7 @@ Character, the three-letter code for the species-specific pathways. If \code{NUL
 }
 }
 \value{
-A \code{pathway} }
+A \code{Pathway} }
 \author{
 Ivana Ihnatova
 }

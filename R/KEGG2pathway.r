@@ -1,4 +1,4 @@
-KEGG2pathway<-function(file, expandGenes=TRUE, expandCom=TRUE, nongene=c("keep","propagate", "discard"), 
+KEGG2Pathway<-function(file, expandGenes=TRUE, expandCom=TRUE, nongene=c("keep","propagate", "discard"), 
  ident="KEGGnative", database="KEGG",
  species=NULL){
 kegg.path<-parseKGML(file) 
@@ -101,8 +101,9 @@ compEd<-lapply(comp, function(x) {
 }
 
 
-p<-new("pathway", title=path@title, nodes=unique(nod[,2]) , edges=E, 
-ident=ident, database=database, species=species, timestamp=Sys.Date())
+gr<-new("Pathway", id=path@title, title=title,  edges=E, 
+database=database,species=species, identifier=ident,  
+timestamp=Sys.Date())
 return(p)
 
 
@@ -114,3 +115,9 @@ if (nongene=="propagate") {
  }
  
 }
+
+KEGG2pathway<-function(file, expandGenes=TRUE, expandCom=TRUE, nongene=c("keep","propagate", "discard"), 
+ ident="KEGGnative", database="KEGG",
+ species=NULL){
+ .Deprecated("KEGG2Pathway")
+ }

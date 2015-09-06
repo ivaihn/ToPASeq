@@ -5,7 +5,7 @@
 Function to prepare pathways for topology-based pathway analysis
 }
 \description{
-Functions transforms pathways from \code{graphite} package (stored as \code{pathway-class}) into formats required in the particular topology-based method implemented in this package. It also converts identifiers in the pathways and filters pathways according to several criteria.
+Functions transforms pathways from \code{graphite} package (stored as \code{Pathway-class}) into formats required in the particular topology-based method implemented in this package. It also converts identifiers in the pathways and filters pathways according to several criteria.
 }
 \usage{
 preparePathways(pathways, method, both.directions, genes, maxNodes = 150, minEdges = 0, commonTh = 2, filterSPIA = FALSE, convertTo = "entrez", convertBy = NULL, EdgeAttrs = NULL)
@@ -13,7 +13,7 @@ preparePathways(pathways, method, both.directions, genes, maxNodes = 150, minEdg
 
 \arguments{
   \item{pathways}{
-A list of pathways, individual pathways are objcets of class \code{pathway}
+A list of pathways, individual pathways are objcets of class \code{Pathway} stored in \code{PathwayList}
 }
   \item{method}{
 A character, the pathways will be transformed according to the needs of the particular method. Possible values are: \code{"TAPPA", "PRS", "PWEA", "TopologyGSA", "clipper", "DEGraph","SPIA" }
@@ -37,7 +37,7 @@ Numeric, threshold for number of nodes present in the data. Pathways with less n
 Logical, if \code{TRUE} applies filter defined in the SPIA method (relates to the calculation of inversion matrix).
 }
   \item{convertTo}{
-Character, one of the \code{"entrez"}, \code{"symbol"} or \code{"none"}. If \code{"none"} no conversion is performed. Otherwise, the function converts node-identifiers in pathways from \code{graphite} into either EntrezIDs or gene symbols. Uses \code{org.Hs.eg.db} package for the mapping. 
+Character. If \code{"none"} no conversion is performed. Otherwise, the function converts node-identifiers in pathways as in \code{graphite}. It uses annotation package for the mapping. 
 }
   \item{convertBy}{
 Named character vector, names of the elemenet must match the node-identifiers and the values are the new identifiers to be replaced. This is a more general option designed for pathways outside \code{graphite}.  
@@ -60,7 +60,7 @@ Ivana Ihnatova
 #Creating dummy set of genes
 set.seed(123)
 pathways<-pathways("hsapiens","kegg")[1:3]
-  pathways<-lapply(pathways, function(p) as(p,"pathway"))
+  
 genes<-unname(unlist(lapply(pathways[1:3], nodes)))
 genes<-sample(genes, length(genes)*0.9)
 

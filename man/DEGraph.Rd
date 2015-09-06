@@ -53,8 +53,7 @@ Ivana Ihnatova
 if (require(DEGraph)) {
   data("Loi2008_DEGraphVignette")
   pathways<-pathways("hsapiens","biocarta")[1:10]
-  pathways<-lapply(pathways, function(p) as(p,"pathway"))
-  DEGraph(exprLoi2008, classLoi2008, pathways, type="MA")
+    DEGraph(exprLoi2008, classLoi2008, pathways, type="MA")
 }
 \dontrun{
 if (require(gageData)) {
@@ -63,7 +62,7 @@ if (require(gageData)) {
  hnrnp.cnts<-hnrnp.cnts[rowSums(hnrnp.cnts)>0,]
  group<-c(rep("sample",4), rep("control",4))
  pathways<-pathways("hsapiens","biocarta")[1:10]
- pathways<-lapply(pathways, function(p) as(p,"pathway"))
+ #pathways<-lapply(pathways, function(p) as(p,"pathway"))
  DEGraph(hnrnp.cnts, group, pathways, type="RNASeq", norm.method="TMM")
 }
 }

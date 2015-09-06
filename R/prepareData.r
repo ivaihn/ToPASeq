@@ -15,7 +15,7 @@ if (method %in% c("TAPPA", "DEGraph", "TopologyGSA", "clipper")) {
   
   } else
 if (method=="PWEA") {
-  if (type=="RNAseq"){ 
+  if (type=="RNASeq"){ 
    if (!is.null(norm.method)) warning("Normalization method ignored")
    if (is.null(test.method)) test.method<-"voomlimma"
    out<-testRNAseq(x, group, test.method)
@@ -59,6 +59,7 @@ if (method %in% c("PRS","SPIA")) {
   if (type=="DElist") {
     if (length(x)!=2) stop("The input data must be a list of length two (named statistics of differentially expressed genes and names of all genes)")
     checkDEandAll(x[[1]], x[[2]])
+    out<-x
    } else stop("This inpout type is not supported for the selected method")  
   
 } else stop(paste("Method",method,"is not implemented"))
@@ -183,10 +184,14 @@ preparePathways<-function(pathways, method, both.directions, genes, maxNodes=150
 
 #konverzia indetifikatorov
 if (is.null(convertBy)) {
- if (any(convertTo==c("entrez","symbol"))) pathways<-sapply(pathways, convertIdentifiers, convertTo) else
- if (convertTo!="none") stop("Invalid conversion specified") 
- } else pathways<-sapply(pathways, convertIdentifiersByVector, convertBy, "user_defined") 
-
+  if (convertTo=="none") pathways<-pathways else {
+  paths<-try(sapply(pathways, convertIdentifiers, convertTo), silent=TRUE) 
+   if (class(paths)=="try-error") stop ("pathway identifiers could not be converted")
+ } 
+ } else {
+ message("Converting identifiers as specified in 'convertBy'")
+ pathways<-sapply(pathways, convertIdentifiersByVector, convertBy, "user_defined") 
+}
 CheckNames(pathways, genes)
 
 N<-length(pathways)
@@ -232,7 +237,7 @@ cat(sum(IDmatchsum==0)," (out of ",length(pathway),") pathways without a mapped 
 }
 
 transformPathway<-function(x, method, both.directions=TRUE, EdgeAttrs=NULL){
-if (! any(class(x)=="pathway")) stop("x must be an object of 'pathway'-class")
+if (! any(class(x)=="Pathway")) stop("x must be an object of 'Pathway'-class")
 if (is.null(EdgeAttrs)) EdgeAttrs<-makeDefaultEdgeData() 
 
 

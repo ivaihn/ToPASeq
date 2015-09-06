@@ -62,13 +62,10 @@ Pathways and their topological structures are an important input for the analysi
 
 ToPASeq is build upon {\tt graphite} R-package where pathways from seven public databases: KEGG, Biocarta, Reactome, NCI, SPIKE, HumanCyc, Panther were downloaded and parsed into a new S4 class \texttt{pathway} (up to version 1.12.0). The parsing process deals also with a special type of nodes that can be found in biological pathways. Protein complexes are expanded into cliques since it is assumed that all units from one complex interact with each other. A clique, from graph theory, is a subset of vertices such that every two vertices in the subset are connected by an edge. On the other hand, gene families are expanded into separate nodes with same incoming and/or outgoing edges, because they are believed to be interchangable. The most important modification is the propagation of signal through the so called compound-mediated interactions.  By compound-mediated interaction we mean an interaction that engages not only genes or their product but also other chemical compounds e.g. calcium ions. \texttt{graphite} is the first package that propagates signal through such interactions. For example, if gene \emph{A} interacts with compound \emph{c} and compound \emph{c} with gene \emph{B} then in a pathway topology gene \emph{A} should interact with gene \emph{B}. Please see~\cite{graphite} for more details.
 
-The {\tt pathway} class is deprecated in the version 1.13.0 of \texttt{graphite} package and substitued with \texttt{PathwayList} and \texttt{Pathways}. However, the implementation of the topology-based methods in ToPASeq still requires pathways as \texttt{pathway}-objects. Therefore, a special method that converts \texttt{Pathways} into \texttt{pathway} was created. 
+
 <<>>=
 library(ToPASeq)
 pathways<-pathways("hsapiens", "kegg")[1:5]
-pathways[[1]]
-str(pathways[[1]])
-pathways<-lapply(pathways, function(p) as(p,"pathway")) 
 pathways[[1]]
 str(pathways[[1]])
 @
@@ -77,10 +74,10 @@ str(pathways[[1]])
 
 The easiest way is to use pathway available through \texttt{graphite}. However, you might need to use your own pathway - the easiest way is to download it from some database (do not forget this pathway needs to contain topological information!)  and convert it to the correct format using our specific functions for pathway conversion and manipulation.
 
-Functions \texttt{AdjacencyMatrix2pathway} and \texttt{graphNEL2pathway} coerce either an adjacency matrix (binary matrix, where 1 means an edge between two genes) or \texttt{graphNEL} into \texttt{pathway}.
+Functions \texttt{AdjacencyMatrix2Pathway} and \texttt{graphNEL2Pathway} coerce either an adjacency matrix (binary matrix, where 1 means an edge between two genes) or \texttt{graphNEL} into \texttt{Pathway}.
 For a reduction of a specified set of nodes (e.g. genes from the same class with similar function), which helps to simply the graphical graph representation, you can use function \texttt{reduceGraph}.
 
-Any other topological manipulations or basic topological analysis can be achieved through \texttt{graphNEL} and conversion from and to \texttt{pathway}. Or directly with the following functions:
+Any other topological manipulations or basic topological analysis can be achieved through \texttt{graphNEL} and conversion from and to \texttt{Pathway}. Or directly with the following functions:
 
 \begin{description}
 
@@ -89,7 +86,7 @@ Any other topological manipulations or basic topological analysis can be achieve
 \item[union] compute the union of the two supplied graphs. They must have identical nodes.
 \item[subGraph] Given a set of nodes and a pathway this function creates and returns subgraph with only the supplied nodes and any edges between them  
 \item[clearNode] Clears all edges incoming and outgoing edges from node(s)
-\item[removeEdge] removes all edges between two subsets of nodes (starting in one subset and ending in the other}
+\item[removeEdge] removes all edges between two subsets of nodes (starting in one subset and ending in the other)
 \item[removeNode] removes node(s) from a pathway
 \item[nodes<-] sets node labels of pathway to a specific value
 
@@ -131,11 +128,10 @@ library(ToPASeq)
 library(DEGraph)
 data(Loi2008_DEGraphVignette)
 pathways<-pathways("hsapiens", "kegg")[1:5]
-pathways<-lapply(pathways, function(p) as(p,"pathway"))
 ls()
 @
 
-Please note, that we convert the downloaded pathways with \texttt{as(x,"pathway")}, where \texttt{x} is a single pathway of class \texttt{Pathways}.
+
                      
   
 \section{TopologyGSA}
@@ -199,7 +195,7 @@ The last multivariable method available within this package is called clipper. T
 The method can be applied with 
 
 <<eval=FALSE, echo=TRUE>>=
-cli<-Clipper( exprLoi2008, classLoi2008, pathways,type="MA", method="mean")
+cli<-clipper( exprLoi2008, classLoi2008, pathways,type="MA", method="mean")
 #99 node labels mapped to the expression data
 #Average coverage 31.47657 %
 #0 (out of 5) pathways without a mapped node
@@ -323,7 +319,7 @@ data(hnrnp.cnts)
 hnrnp.cnts<-hnrnp.cnts[rowSums(hnrnp.cnts)>0,]
 group<-c(rep("sample",4), rep("control",4))
 pathways<-pathways("hsapiens", "kegg")
-pathways<-lapply(pathways, function(p) as(p,"pathway"))
+
 @ 
 
 
@@ -374,7 +370,7 @@ The last multivariable method available within this package is called clipper. T
 The method can be applied with
 
 <<seq4,eval=FALSE, echo=TRUE>>=
-cli<-Clipper(hnrnp.cnts, group, pathways, type="RNASeq", method="mean")
+cli<-clipper(hnrnp.cnts, group, pathways, type="RNASeq", method="mean")
 #530 node labels mapped to the expression data
 #Average coverage 82.98681 %
 #0 (out of 10) pathways without a mapped node
@@ -484,7 +480,7 @@ Apart from the expected arguments: a gene expression data matrix, a vector of cl
 
 \chapter{Outputs and visualization of the results for one pathway}
 
-All the functions mentioned in this vignette return an object of class \texttt{topResult}. It is a list with three slots. The first one is called \texttt{res} and contains a data frame of the results for all the pathways. The actual informations there differ among the methods and are described in the manual. The second slot is called \texttt{topo.sig} and it is a list of  topological significances of genes in pathways. The term topologial significance means scores used to measure the importance of a gene in a pathway. The higher the score the more important gene. It is \texttt{NULL} for TAPPA and DEGraph method, because they do not provide any measure of this kind. The last slot contains the log fold-changes or test statistics of differential expression at gene level. They are necessary in the \texttt{plot} function for all the methods except TopologyGSA and Clipper.
+All the functions mentioned in this vignette return an object of class \texttt{topResult}. It is a list with three slots. The first one is called \texttt{res} and contains a data frame of the results for all the pathways. The actual informations there differ among the methods and are described in the manual. The second slot is called \texttt{topo.sig} and it is a list of  topological significances of genes in pathways. The term topologial significance means scores used to measure the importance of a gene in a pathway. The higher the score the more important gene. It is \texttt{NULL} for TAPPA and DEGraph method, because they do not provide any measure of this kind. The last slot contains the log fold-changes or test statistics of differential expression at gene level. They are necessary in the \texttt{plot} function for all the methods except TopologyGSA and clipper.
 
 
  The \texttt{plot()} function has three necessarry arguments when it is to be applied on \texttt{topResult} object. The first one is an output from any of the methods. The second one is either a name of a pathway or its number in a list of pathways. And the last one is a list of pathways used in the analysis.
@@ -496,7 +492,7 @@ The final visualization of the results for one pathway is method specific. Three
 \item \texttt{layout} - the layout of the graph from \texttt{Rgraphviz} package, \texttt{"dot"} by default, other possibilities are e.g. \texttt{"neato"} or \texttt{"twopi"}
 \end{itemize}
 
-The significant cliques are enhanced in the results of TopologyGSA and Clipper. Since the whole analysis with these method is done on transformed topology (moralized then triangulated graphs), the transformed topology is also drawn in the visualization. The user can specify the color which used for edges between nodes from a significant clique (default value is \texttt{cli.color="red"} and can be either a character or a function that returns a color pallette) and the color of nodes (default value is \texttt{cli.node.color="white"}. The \texttt{alpha} controls the significance threshold for the cliques. If \texttt{add.legend=TRUE} then a legend is drawn containing the colors of edges of individual cliques, their genes and p-value. The \texttt{intersp} can be used to adjust the space between items of legened.
+The significant cliques are enhanced in the results of TopologyGSA and clipper. Since the whole analysis with these method is done on transformed topology (moralized then triangulated graphs), the transformed topology is also drawn in the visualization. The user can specify the color which used for edges between nodes from a significant clique (default value is \texttt{cli.color="red"} and can be either a character or a function that returns a color pallette) and the color of nodes (default value is \texttt{cli.node.color="white"}. The \texttt{alpha} controls the significance threshold for the cliques. If \texttt{add.legend=TRUE} then a legend is drawn containing the colors of edges of individual cliques, their genes and p-value. The \texttt{intersp} can be used to adjust the space between items of legened.
 
 << plot1, fig=false, width=8, height=7, eval=false>>=
 #Fails during check
@@ -505,7 +501,7 @@ data(hnrnp.cnts)
 
 group<-c(rep("sample",4), rep("control",4))
 hnrnp.cnts<-hnrnp.cnts[rowSums(hnrnp.cnts)>0,]
-res<-Clipper(hnrnp.cnts, group, pathways[1:2], type="RNASeq", testCliques=TRUE)
+res<-clipper(hnrnp.cnts, group, pathways[1:2], type="RNASeq", testCliques=TRUE)
 
 plot(res,1, pathways)
 
@@ -525,7 +521,6 @@ data(hnrnp.cnts)
 group<-c(rep("sample",4), rep("control",4))
 hnrnp.cnts<-hnrnp.cnts[rowSums(hnrnp.cnts)>0,]
 pathways<-pathways("hsapiens", "kegg")[50:55]
-pathways<-lapply(pathways, function(p) as(p,"pathway"))
 spi<-SPIA(hnrnp.cnts, group, pathways, type="RNASeq", logFC.th=-1)
 plot(spi,"Complement and coagulation cascades", pathways, fontsize=50)
 

@@ -15,9 +15,9 @@ convertIdentifiersByVector<-function (pathway, conv.table, id.type="unknown")
     es[,1]<- unname(conv.table[es[,1]])
     es[,2]<- unname(conv.table[es[,2]])
 
-    pathway@nodes <- ns
+    #pathway@nodes <- ns
     pathway@edges <- es
-    pathway@ident <- id.type
+    pathway@identifier <- id.type
     return(pathway)
 }
 

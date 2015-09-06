@@ -1,22 +1,26 @@
 export(
 
-SPIA, DEGraph, Clipper, PRS, PWEA, TAPPA, TopologyGSA,
+SPIA, DEGraph, clipper, PRS, PWEA, TAPPA, TopologyGSA,
 res, topo.sig, degtable,
-AdjacencyMatrix2pathway,
-graphNEL2pathway,
+AdjacencyMatrix2Pathway,
+graphNEL2Pathway,
 estimateCF,
 reduceGraph,
 convertIdentifiersByVector,
-KEGG2pathway,
+KEGG2Pathway,
 makeDefaultEdgeData,
 prepareTIF, collectWeightsPRS, collectWeightsSPIA,
-preparePathways
+preparePathways,
+
+AdjacencyMatrix2pathway,
+graphNEL2pathway,
+KEGG2pathway
 )
 
 useDynLib(ToPASeq)
 
-exportClasses(pathway)
-exportMethods(nodes, edges)
+
+
 exportMethods(intersection, join, union, subGraph, clearNode, removeEdge, removeNode, addEdge, addNode, changeDirection, changeInteraction,"nodes<-")
 
 exportMethods(degree, numNoEdges, mostEdges, acc, connComp, edges, isAdjacent, isDirected, isConnected, edgemode, numEdges, numNodes, edgeNames)

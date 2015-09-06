@@ -85,9 +85,9 @@ plotCliques<-function(info, alpha = 0.05, color="red", node.color="white", nodes
 
 ########################
 plot.topResult<-function(x, which, graphs, stats="logFC", convert=TRUE, IDs="ENTREZID", graphIDs="SYMBOL", col.lim=NULL,reduction=list(), agg.fun=function(x) mean(x, na.rm=TRUE),
- logical=NULL, sig.th=0.1, title=TRUE, cex.main=1, breaks=c(100,5),
+ logical=TRUE, sig.th=0.1, title=TRUE, cex.main=1, breaks=c(100,5),
   pallete.colors=c("blue","white", "red"), na.col="grey87", cli.color="red", layout="dot", nodesize=1, fontsize=14, 
-  alpha=0.05, add.legend=TRUE, statName="Log fold change", ...  ){
+  alpha=0.05, add.legend=TRUE, statName="Log fold change", cex.legend=1, ...  ){
 
 
 
@@ -118,9 +118,9 @@ drawGraph(xxred, res, which, NodeTable, nodesize, fontsize, statName=statName, c
 }
 
 if ("topResultW" %in% class(res) ){
-tsig<-res$topo.sig[[which]][1,]; 
+if (is.null(dim(res$topo.sig[[which]]))) tsig<-res$topo.sig[[which]] else tsig<-res$topo.sig[[which]][1,]; 
  if (length(tsig)==0) stop("This pathway was not analysed") 
- tsig.whole<-unlist(sapply(res$topo.sig, function(x) x[1,]))
+ if (is.null(dim(res$topo.sig[[which]]))) tsig.whole<-unlist(sapply(res$topo.sig, function(x) x)) else tsig.whole<-unlist(sapply(res$topo.sig, function(x) x[1,]))
  }
 if ("topResultE" %in% class(res) ) {
 nod<-nodes(graphs[[which]])
@@ -143,8 +143,10 @@ NodeTable<-makeNodeTable(g, gc, gp, breaks,  deg.table, sigpal, tsig.whole, tsig
  } else att<-list(NodeTable, EdgeList)
  
  xxg<-renderOrig(gp, NodeTable, EdgeList, nodesize, fontsize)
- xxred<-renderReduced( gp, reduction, att[[1]], att[[2]], xxg, fontsize)
- drawGraph(xxred, res, which, NodeTable, nodesize, fontsize, statName=statName, cex.main=cex.main, col.lim=col.lim, legend=add.legend)
+ xxred<-renderReduced( gp, reduction, att[[1]], att[[2]], xxg,nodesize=nodesize, fontsize=fontsize, agg.fun=agg.fun)
+ drawGraph(xxred, res, which, NodeTable, nodesize, fontsize, statName=statName, cex.main=cex.main, col.lim=col.lim, breaks=breaks, sigpal=sigpal, legend=add.legend, cex.legend=cex.legend)
+
+
 }
 
 

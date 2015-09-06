@@ -1,5 +1,7 @@
 estimateCF<-function(graph){
+if (!any(class(graph)=="Pathway")) stop("graph must be of class 'Pathway',found:", paste(class(graph)))
 #complexex
+#graph<-as(graph,"pathway")
 e<-edges(graph)
 n<-length(nodes(graph))
 nod<-nodes(graph)

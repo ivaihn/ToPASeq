@@ -1,11 +1,11 @@
 test_convertIdentifiersByVector<-function(){
-pathways<-pathways("hsapiens","kegg")["Asthma"]
-g<-as(pathways[[1]],"pathway")
+g<-pathways("hsapiens","kegg")[["Asthma"]]
+
 
 conv<-setNames(paste("gene", 1:length(nodes(g)), sep=""), nodes(g))
 gc<-convertIdentifiersByVector(g, conv, "dummy")
 checkTrue(length(nodes(g))== length(nodes(gc)))
-checkTrue(gc@ident=="dummy")
+checkTrue(gc@identifier=="dummy")
 
 conv<-conv[-1]
 obs <- tryCatch(convertIdentifiersByVector(g, conv, "dummy"), warning=conditionMessage)

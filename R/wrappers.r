@@ -13,7 +13,7 @@ class(out)<-c(class(out), "topResultE","topResult")
 return(out)
 }
 
-Clipper<-function(x, group, pathways, type, preparePaths=TRUE, norm.method=NULL, test.method=NULL,  method="mean", testCliques=FALSE, nperm=1000, alphaV=0.05, b=1000, permute=TRUE,
+clipper<-function(x, group, pathways, type, preparePaths=TRUE, norm.method=NULL, test.method=NULL,  method="mean", testCliques=FALSE, nperm=1000, alphaV=0.05, b=1000, permute=TRUE,
    both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="none", convertBy=NULL){
 gedm<-prepareData(x, group, type, method="clipper", norm.method)
 if (preparePaths) paths<-preparePathways(pathways, method="clipper", both.directions, rownames(gedm[[1]]), maxNodes, minEdges, commonTh, filterSPIA, convertTo, convertBy ) else paths<-pathways
@@ -117,7 +117,7 @@ PRS<-function(x, group, pathways, type, preparePaths=TRUE, norm.method=NULL, tes
  both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="none", convertBy=NULL){
 degs<-prepareData(x, group, type, method="SPIA", norm.method, test.method, p.th=p.th, logFC.th=logFC.th)
 if (preparePaths) paths<-preparePathways(pathways, method="PRS", both.directions, degs[[2]], maxNodes, minEdges, commonTh, filterSPIA, convertTo, convertBy ) else paths<-pathways
-res<-prs(degs[[2]], degs[[1]], paths, nperm)
+res<-prs(degs[[1]], degs[[2]], paths, nperm)
 if (type=="MA") {
  gedm<-processMA(x, group)
  deg.table<-testMA(gedm[[1]], gedm[[2]])

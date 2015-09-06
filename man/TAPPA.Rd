@@ -56,7 +56,6 @@ Gao, S. and Wang, X. (2007) TAPPA: topological analysis of pathway phenotype ass
 if (require(DEGraph)) {
   data("Loi2008_DEGraphVignette")
   pathways<-pathways("hsapiens","biocarta")[1:10]
-  pathways<-lapply(pathways, function(p) as(p,"pathway"))
   TAPPA(exprLoi2008, classLoi2008, pathways, type="MA")
 }
 
@@ -67,7 +66,6 @@ if (require(gageData)) {
  group<-c(rep("sample",4), rep("control",4))
  hnrnp.cnts<-hnrnp.cnts[rowSums(hnrnp.cnts)>0,]
 pathways<-pathways("hsapiens","biocarta")[1:10]
-  pathways<-lapply(pathways, function(p) as(p,"pathway")) 
  TAPPA( hnrnp.cnts, group, pathways, type="RNASeq", norm.method="TMM")
 }
 }

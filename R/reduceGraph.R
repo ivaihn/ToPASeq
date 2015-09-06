@@ -39,7 +39,7 @@ reduceGraph<-function (graph, reduction)
             reduction[[r]] | edges(graph)[, 2] %in% reduction[[r]]), 
             ], newedges)
         rownames(newedges) <- 1:nrow(newedges)
-        graph@nodes <- newnodes
+      
         graph@edges <- newedges
     }
     } 
