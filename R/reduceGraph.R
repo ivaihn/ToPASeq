@@ -10,10 +10,9 @@ reduceGraph<-function (graph, reduction)
         if (!isComplex(graph, reduction[[r]])) {
             outedg <- tapply(e[, 2], e[, 1], function(x) x)[reduction[[r]]]
             inedg <- tapply(e[, 1], e[, 2], function(x) x)[reduction[[r]]]
-            outok <- sapply(1:(length(outedg) - 1), function(i) all(outedg[[i]] == 
-                outedg[[i + 1]]))
-            inok <- sapply(1:(length(inedg) - 1), function(i) all(inedg[[i]] == 
-                inedg[[i + 1]]))
+            outok <- sapply(1:(length(outedg) - 1), function(i) all(!is.na(match(outedg[[i]],outedg[[i + 1]]))))
+            inok <- sapply(1:(length(inedg) - 1), function(i) all(!is.na(match(inedg[[i]],inedg[[i + 1]]))))
+
             if (!all(outok) | !all(inok)) {
                 if (!all(outok)) {
                   cat("Ougoing edges:\n")
