@@ -140,22 +140,15 @@ return(deg.table)
 parDE<-function(x, group, test, nperm, ncores=NULL){
 if (is.null(ncores)) ncores<-detectCores()
 
+perm.test<-function(i, test, x, group){test(x, sample(group))}          
 
-perm.test<-function(i, test){
-function(i,exprs, group){if (i %% 10==0) cat(i,"\n"); test(exprs, sample(group))}
-}
 if (.Platform$OS.type=="unix") cl <- makeCluster(ncores, type="FORK") else
 cl <- makeCluster(rep("localhost",ncores))
 
 i<-1
-ptest<-perm.test(i, test)
-clusterExport(cl,"test")
-clusterExport(cl,"test", envir=environment())
-#clusterExport(cl,deparse(substitute(test)))
-#clusterExport(cl,deparse(substitute(test)), envir=environment())
-tmp<-parSapply(cl, seq_len(nperm), ptest, x, group)
-stopCluster(cl)
+tmp<-parSapply(cl, seq_len(nperm), perm.test, test, x, group)
 
+stopCluster(cl)
 
 return(tmp)
 }
