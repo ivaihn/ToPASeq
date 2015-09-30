@@ -223,7 +223,7 @@ CheckNames<-function(pathway, expr){
 
 IDmatchsum<-sapply(pathway, function(x) sum(nodes(x) %in% expr))
 IDmatchmean<-sapply(pathway, function(x) mean(nodes(x) %in% expr))
-if (sum(IDmatchsum)==0) stop("Gene labels and node labels do not match. Please, correct your gene identifiers\n")
+if (sum(IDmatchsum)==0) stop("Gene labels and node labels do not match. Please, correct your gene identifiers\n", head(nodes(pathway[[1]])), head(expr))
 cat(sum(IDmatchsum),"node labels mapped to the expression data\n")
 cat("Average coverage", mean(IDmatchmean,na.rm=TRUE)*100,"%\n")
 cat(sum(IDmatchsum==0)," (out of ",length(pathway),") pathways without a mapped node\n", sep="")

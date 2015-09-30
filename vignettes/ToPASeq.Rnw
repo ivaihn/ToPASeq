@@ -99,7 +99,7 @@ Any other topological manipulations or basic topological analysis can be achieve
 \item[isAdjacent] Checks whether two nodes are adjacent (there is an edge starting in first node and ending in the second)
 \item[isConnected] Checks if a pathway contains only one connected component
 \item[isDirected] Checks if all edges in a pathway are directed
-\item[edgemode] Returns the type of edges in a pathway: \texttt{directed}, \textttt{undirected} or both
+\item[edgemode] Returns the type of edges in a pathway: \texttt{directed}, \texttt{undirected} or both
 \item[numEdges] Returns the number of edges in a pathway
 \item[numNodes] Returns the number of nodes in a pathway
 \item[edgeNames] Returns the names of the edges in a following format: starting node ~ ending node
