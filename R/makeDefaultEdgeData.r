@@ -18,9 +18,11 @@ spiaType=c("binding/association", "activation", "activation", "activation", "act
  "phosphorylation", "inhibition_phosphorylation", "inhibition_dephosphorylation", "dissociation", "dephosphorylation", 
  "activation_dephosphorylation", "state change", "activation_indirect effect", "inhibition_ubiquination", "ubiquination", 
  "expression_indirect effect", "inhibition_indirect effect", "repression", "dissociation_phosphorylation", "indirect effect_phosphorylation", 
- "activation_binding/association", "indirect effect", "activation_compound", "activation_ubiquination")
+ "activation_binding/association", "indirect effect", "activation_compound", "activation_ubiquination", 
+ 
+ "glycosylation",  "methylation",    "ubiquitination")
  ,
- beta=c(1, 0, 0, 1, -1, 1, 0, -1, -1, 0, 0, 1, 0, 1, -1, 0, 1, -1, -1, 0, 0, 1, 0, 1, 1)
+ beta=c(1, 0, 0, 1, -1, 1, 0, -1, -1, 0, 0, 1, 0, 1, -1, 0, 1, -1, -1, 0, 0, 1, 0, 1, 1, 0,0,0)
  , stringsAsFactors=FALSE
  )
  defaultEdgeAttrs<-list(graphite2SPIA=graphite2SPIA, beta=beta)

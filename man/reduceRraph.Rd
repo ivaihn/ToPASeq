@@ -53,20 +53,6 @@ gr<-convertIdentifiers(kegg[["Prolactin signaling pathway"]],"SYMBOL")
 red<-list(RAS=c("NRAS","KRAS","HRAS"), SHC=c("RELA", "FOS","NFKB1"))
 reduced<-reduceGraph(pathways, red)
 }
-
-pathways<-pathways("hsapiens","kegg")["p53 signaling pathway"]
-pathways<-convertIdentifiers(pathways[[1]], "SYMBOL")
-
-reduced<-reduceGraph(pathways, list(com=c("CCNE1", "CDK2", "CCNE2")))
-
-par(mfrow=c(1,2))
-
-nA<-list(fillcolor=c(CCNE1="red", CDK2="red", CCNE2="red"))
-plot(pathwayGraph(pathways), nodeAttrs=nA, attrs=list(node=list(fontsize=30, height=40)), main="Before")
-
-plot(pathwayGraph(reduced), 
- nodeAttrs=list(fillcolor=c(com="red")), attrs=list(node=list(fontsize=30, height=40)), main="After")
-
 }
 \keyword{ manip }
 
