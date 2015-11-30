@@ -234,6 +234,7 @@ if (! any(class(x)=="Pathway")) stop("x must be an object of 'Pathway'-class")
 if (is.null(EdgeAttrs)) EdgeAttrs<-makeDefaultEdgeData() 
 
 
+
 if (method=="TAPPA") {
   x<-as(x,"graphNEL") 
   x<-as(x,"matrix")
@@ -291,7 +292,7 @@ prepareSPIA2<-function (p, both.directions, edgeAttrs=makeDefaultEdgeData()){
         es <- graphite::edges(p)
         ns <- graphite::nodes(p)
         spiaEdges<-edgeAttrs[[1]]
-        if (!all(levels(es[,4]) %in% spiaEdges[,1] )) stop("Unexpected edge type ", levels(es[,4])[!levels(es[,4]) %in% spiaEdges[,1]], " Please see '?makeDefaultEdgeData' for explanation\n")       
+        if (!all(unique(as.character(es[,4])) %in% spiaEdges[,1] )) stop("Unexpected edge type ", levels(es[,4])[!levels(es[,4]) %in% spiaEdges[,1]], " Please see '?makeDefaultEdgeData' for explanation\n")       
         es <- merge(es, spiaEdges, all.x = TRUE)[c("src", "dest", "direction", "spiaType")]
         l <- sapply(edgeAttrs[[2]][,1], simplify = FALSE, USE.NAMES = TRUE,
             function(edgeType) {
