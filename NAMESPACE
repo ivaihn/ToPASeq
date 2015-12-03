@@ -36,7 +36,7 @@ S3method(plot,topResult)
 
 import(graphite, gRbase, graph, locfit, methods, Rgraphviz)
 importFrom(DESeq2, DESeqDataSetFromMatrix, DESeq, results, estimateSizeFactors, estimateDispersions, nbinomWaldTest, rlogTransformation, varianceStabilizingTransformation)
-importFrom(GenomicRanges, assay, colData, "colData<-")
+importFrom(SummarizedExperiment, assay, colData, "colData<-")
 importFrom(KEGGgraph, parseKGML)
 importFrom(AnnotationDbi,select, columns)
 

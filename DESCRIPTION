@@ -1,8 +1,8 @@
 Package: ToPASeq
 Type: Package
 Title: Package for Topology-based Pathway Analysis of RNASeq data
-Version: 1.5.1
-Date: 2015-30-11
+Version: 1.5.2
+Date: 2015-12-02
 Author: Ivana Ihnatova, Eva Budinska
 Maintainer: Ivana Ihnatova <ihnatova@iba.muni.cz>
 Description: Implementation of seven methods for topology-based pathway
@@ -10,7 +10,7 @@ Description: Implementation of seven methods for topology-based pathway
         TopologyGSA, TAPPA, PRS, PWEA and a visualization tool for a
         single pathway.
 Depends: graphite (>= 1.16), gRbase, graph, locfit, Rgraphviz
-Imports: R.utils, methods, Biobase, parallel, edgeR, DESeq2, GenomicRanges, RBGL, DESeq, fields,
+Imports: R.utils, methods, Biobase, parallel, edgeR, DESeq2, SummarizedExperiment, RBGL, DESeq, fields,
         limma, TeachingDemos, KEGGgraph, qpgraph, clipper, AnnotationDbi, doParallel
 Suggests: RUnit, BiocGenerics, gageData, DEGraph,  plotrix, org.Hs.eg.db
 LinkingTo: Rcpp
