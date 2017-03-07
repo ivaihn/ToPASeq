@@ -8,7 +8,7 @@ Function to use clipper method on microarray or RNA-Seq data
 clipper is a method for topological gene set analysis. It implements a two-step empirical approach based on the exploitation of graph decomposition into a junction tree to reconstruct the most relevant signal path. In the first step clipper selects significant pathways according to statistical tests on the means and the concentration matrices of the graphs derived from pathway topologies. Then, it "clips" the whole pathway identifying the signal paths having the greatest association with a specific phenotype. 
 }
 \usage{
-clipper(x, group, pathways, type, preparePaths=TRUE, norm.method=NULL, test.method=NULL,  method="mean", testCliques=FALSE, nperm=1000, alphaV=0.05, b=1000, permute=TRUE,
+clipper(x, group, pathways, type, preparePaths=TRUE, norm.method=NULL, test.method=NULL,  method="mean", testCliques=FALSE, nperm=1000, alphaV=0.05, b=1000, permute=TRUE, portions=FALSE,
    both.directions=TRUE, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="none", convertBy=NULL)
 }
 
@@ -35,6 +35,7 @@ Logical, by default the pathways are transformed with \code{preparePathways()}. 
 \item{alphaV}{Numeric, the threshold for variance test. The calculation of mean test depends on the result of variance test. }
 \item{b}{number of permutations for mean analysis}
 \item{permute}{always performs permutations in the concentration matrix test. If FALSE, the test is made using the asymptotic distribution of the log-likelihood ratio. This option should be use only if samples size is >=40 per class}
+\item{portions}{Logical, if \code{TRUE} then the most transcriptionally altered portions of the graph is also detected, if \code{FALSE} (default) only whole pathway is tested}
 \item{both.directions, maxNodes, minEdges, commonTh, filterSPIA, convertTo, convertBy}{Arguments for the \code{preparePathways()}}
  
 }

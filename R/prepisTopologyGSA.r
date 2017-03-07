@@ -1,7 +1,7 @@
 
 #########
 
-PMT<-function (x, group, dag, alpha, perms, variance = TRUE, paired = FALSE) 
+PMT<-function (x, group, dag, alpha, nperm, variance = TRUE, paired = FALSE) 
 {
     group<-as.numeric(factor(group))
     y1<-t(x[,group==1])
@@ -20,20 +20,20 @@ PMT<-function (x, group, dag, alpha, perms, variance = TRUE, paired = FALSE)
         t.obs <- .hotePaired(y1, y2, cli.moral)
         stat.perm <- vector("numeric", perms)
         #* for (i in seq_len(perm.num)) stat.perm[i] <- .hotePaired(y1, y2, cli.moral, perm = TRUE)
-        p.value <- sum(stat.perm >= t.obs)/perms
+        p.value <- sum(stat.perm >= t.obs)/nperm
         l <- list(p.value = p.value, cli.moral = cli.moral, graph = l$graph, 
             t.value = t.obs)
     }    else {
         s <- .hote(y1, y2, FALSE, cli.moral)
         y1.num <- nrow(y1)
-        stat.perm <- vector("numeric", perms)
-        for (i in seq_len(perms)) {
+        stat.perm <- vector("numeric", nperm)
+        for (i in seq_len(nperm)) {
             group.rn<-sample(group)
             y1.perm <- y[group.rn==1, ]
             y2.perm <- y[group.rn==2, ]
             stat.perm[i] <- .hote(y1.perm, y2.perm, FALSE, cli.moral)$t.obs
         }
-        p.value <- sum(stat.perm >= s$t.obs)/perms
+        p.value <- sum(stat.perm >= s$t.obs)/nperm
         l <- list(t.value = s$t.obs, df.mean = s$df, p.value = p.value, 
             lambda.value = l$lambda.value, df.var = l$df, p.value.var = l$p.value, 
             qchisq.value = l$qchisq.value, var.equal = var.equal, 
@@ -68,8 +68,16 @@ procParams<-function (y1, y2, dag)
     list(y1 = y1, y2 = y2, graph = graph)
 }
 
+MoralizeMG<-function (graph)
+{
+    m <- gRbase::graphNEL2M(graph)
+    m <- gRbase::moralizeMAT(m)
+    gRbase::coerceGraph(m, "graphNEL")
+}
+
+
 cli<-function (dag) {
-    moral <- moralize(dag)
+    moral <- MoralizeMG(dag)
     tg <- triangulate(moral)
     adj.moral <- as(moral, "matrix")
     cli<-getCliques(moral)

@@ -1,6 +1,6 @@
 export(
 
-SPIA, DEGraph, clipper, PRS, PWEA, TAPPA, TopologyGSA,
+SPIA, DEGraph, clipper, PRS, PWEA, TAPPA, TopologyGSA, CePa,
 res, topo.sig, degtable,
 AdjacencyMatrix2Pathway,
 graphNEL2Pathway,
@@ -14,7 +14,8 @@ preparePathways,
 
 AdjacencyMatrix2pathway,
 graphNEL2pathway,
-KEGG2pathway
+KEGG2pathway,
+parseKEGG, SPIA4analysis, SPIA2graph
 )
 
 useDynLib(ToPASeq)
@@ -37,7 +38,7 @@ S3method(plot,topResult)
 import(graphite, gRbase, graph, locfit, methods, Rgraphviz)
 importFrom(DESeq2, DESeqDataSetFromMatrix, DESeq, results, estimateSizeFactors, estimateDispersions, nbinomWaldTest, rlogTransformation, varianceStabilizingTransformation)
 importFrom(SummarizedExperiment, assay, colData, "colData<-")
-importFrom(KEGGgraph, parseKGML)
+importFrom(KEGGgraph, parseKGML, KEGGpathway2Graph, getPathwayInfo, getTitle)
 importFrom(AnnotationDbi,select, columns)
 
 importFrom(R.utils, reassignInPackage)

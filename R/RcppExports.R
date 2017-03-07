@@ -5,6 +5,10 @@ accCpp <- function(AM, nodeNames, index) {
     .Call('ToPASeq_accCpp', PACKAGE = 'ToPASeq', AM, nodeNames, index)
 }
 
+betweenness <- function(g, V) {
+    .Call('ToPASeq_betweenness', PACKAGE = 'ToPASeq', g, V)
+}
+
 colMax <- function(X) {
     .Call('ToPASeq_colMax', PACKAGE = 'ToPASeq', X)
 }

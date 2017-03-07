@@ -315,34 +315,37 @@ return(extraNodes)
 
 #############
 
-
 eliminateNode<-function(object, node){
-E<-object@edges
-
-inv.edg<-E[,1] %in% node | E[,2] %in% node
-
-E.tmp<-E[inv.edg,]
-
-src<-as.matrix(E.tmp[!E.tmp[,1] %in% node,])
-des<-as.matrix(E.tmp[!E.tmp[,2] %in% node,])
+  E<-object@edges
+  
+  inv.edg<-E[,1] %in% node | E[,2] %in% node
+  
+  E.tmp<-E[inv.edg,]
+  
+  src<-as.matrix(E.tmp[!E.tmp[,1] %in% node,])
+  des<-as.matrix(E.tmp[!E.tmp[,2] %in% node,])
+  
 
 combineRows<-function(x,y) {
-if (x[3]==y[3] & x[4]==y[4]) out<-c(x[1], y[2], x[3], x[4])
-else stop("Incoming and outgoing edge differs in type")
-return(out)}
+  out<-rep(NA,4)
+  if (x[3]==y[3] & x[4]==y[4]) out<-c(x[1], y[2], x[3], x[4])
+  #else stop("Incoming and outgoing edge differs in type")
+  return(out)}
 
 out<-matrix(NA, ncol=4, nrow=nrow(src)*nrow(des))
 for (i in seq_len(nrow(src))) {
-for (j in seq_len(nrow(des))) {
-out[(j-1)*nrow(src)+i,]<-combineRows(src[i,], des[j,])
-}}
+  for (j in seq_len(nrow(des))) {
+    out[(j-1)*nrow(src)+i,]<-combineRows(src[i,], des[j,])
+  }}
 colnames(out)<-colnames(E)
 
-E<-rbind(E[!inv.edg,], out)
+out<-out[rowSums(is.na(out))==0,]  
 
-path<-new("Pathway", id=object@id, title=object@title, 
-edges=E , database=object@database, species=object@species,
-identifier=object@identifier, timestamp=Sys.Date())
-return(path)
+  E<-rbind(E[!inv.edg,], out)
+  E[,1]<-as.character(E[,1])
+  E[,2]<-as.character(E[,2])
+  path<-new("Pathway", id=object@id, title=object@title, 
+            edges=E , database=object@database, species=object@species,
+            identifier=object@identifier, timestamp=Sys.Date())
+  return(path)
 }
-

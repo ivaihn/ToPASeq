@@ -40,7 +40,7 @@ if (method=="PWEA") {
    } else stop("This inpout type is not supported for the selected method")  
   
   } else
-if (method %in% c("PRS","SPIA")) {
+if (method %in% c("PRS","SPIA", "CePa")) {
   if (type=="RNASeq"){
    if (!is.null(norm.method)) warning("Normalization method ignored")
    if (is.null(test.method)) test.method<-"voomlimma"
@@ -55,6 +55,7 @@ if (method %in% c("PRS","SPIA")) {
   } else
   if (type=="DEtable") {
     out<-applyTh(x, p.th, logFC.th)
+    if (length(out[[1]])==0) stop("Found NO differetially expressed genes") else message(paste("Found", length(out[[1]]), "differentially expressed genes"))
   } else
   if (type=="DElist") {
     if (length(x)!=2) stop("The input data must be a list of length two (named statistics of differentially expressed genes and names of all genes)")
@@ -121,6 +122,7 @@ fit2 = limma::eBayes(fit2)
 results <- limma::decideTests(fit2)
 deg.table = limma::topTable(fit2, coef=1, adjust.method="BH", number=nrow(x), genelist=rownames(x), sort.by="none")
 deg.table<-data.frame(ID=rownames(deg.table), logFC=deg.table$logFC, t=deg.table$t,  pval=deg.table$P.Value, padj=deg.table$adj.P.Val)
+rownames(deg.table)<-deg.table$ID 
 return(deg.table)
 }
 
@@ -161,6 +163,7 @@ if (!is.na(p.th) & !is.na(logFC.th)) select<-(x$pval < p.th) & (abs(x$logFC) > l
 if (!is.na(p.th)) select<- x$pval < p.th else
 if (!is.na(logFC.th)) select<-abs(x$logFC) > logFC.th else select<-rep(FALSE, nrow(x))
 
+select[is.na(select)]<-FALSE
 de<-setNames(x$logFC[select], x$ID[select])
 out<-list(de=de, all=as.character(x$ID))
 return(out)
@@ -175,6 +178,7 @@ return(out)
 ######################
 preparePathways<-function(pathways, method, both.directions, genes, maxNodes=150, minEdges=0, commonTh=2, filterSPIA=FALSE, convertTo="entrez", convertBy=NULL, EdgeAttrs=NULL){
 
+if (!is.list(pathways) & !any(class(pathways)=="PathwayList")) stop("'pathways' must be a list or a PathwayList, found ", class(pathways))
 #konverzia indetifikatorov
 if (is.null(convertBy)) {
   if (convertTo=="none") pathways<-pathways else {
@@ -197,6 +201,7 @@ if (!is.null(minEdges)) pathways<-FewEdges(pathways, minEdges)
   pathways<-lapply(pathways, function(path) list(transformPathway(path, method=method, both.directions, EdgeAttrs), path@title))
 
 if (filterSPIA) pathways<-filterSPIA(pathways)
+#if (DAGonly | method %in% c("clipper", "TopologyGSA")) pathways<-DAGOnly(pathways)
 message(paste(N-length(pathways), " pathways were filtered out"))
 
 return(pathways)
@@ -223,7 +228,7 @@ CheckNames<-function(pathway, expr){
 
 IDmatchsum<-sapply(pathway, function(x) sum(nodes(x) %in% expr))
 IDmatchmean<-sapply(pathway, function(x) mean(nodes(x) %in% expr))
-if (sum(IDmatchsum)==0) stop("Gene labels and node labels do not match. Please, correct your gene identifiers\n", head(nodes(pathway[[1]])), head(expr))
+if (sum(IDmatchsum)==0) stop("Gene labels and node labels do not match. Please, correct your gene identifiers\n", paste(head(nodes(pathway[[1]])), collapse=" "), paste(head(expr), collapse=" "))
 cat(sum(IDmatchsum),"node labels mapped to the expression data\n")
 cat("Average coverage", mean(IDmatchmean,na.rm=TRUE)*100,"%\n")
 cat(sum(IDmatchsum==0)," (out of ",length(pathway),") pathways without a mapped node\n", sep="")
@@ -248,7 +253,7 @@ if (method=="PRS") {
   x<-buildGraphNEL(nodes(x), edges(x), FALSE)
   x<-as(x,"matrix")
 }
-if (any(method==c("PWEA","TopologyGSA","clipper","DEGraphNoSigns"))) {
+if (any(method==c("PWEA","TopologyGSA","clipper","DEGraphNoSigns", "CePa"))) {
   if (both.directions) x<-buildGraphNEL(nodes(x), edges(x), TRUE) else
   x<-buildGraphNEL(nodes(x), edges(x), FALSE)
 }
@@ -272,8 +277,8 @@ if (method=="DEGraph") {
   negind<-nrow(signMat)*(match(negedg[,2], colnames(signMat))-1)+match(negedg[,1], colnames(signMat))
   signMat[negind] <- -1
 
-  neuedg<-e[,1:2][e[,4] %in% neu, ]
-  g<-removeEdge(from=neuedg[,1], to=neuedg[,2], g)
+  #neuedg<-e[,1:2][e[,4] %in% neu, ]
+  #g<-removeEdge(from=neuedg[,1], to=neuedg[,2], g)
   g@graphData$signMat<-signMat
   x<-g
 }
@@ -329,6 +334,11 @@ BigPaths<-function (pathways, maxNodes) {
 CommonGenes<-function (pathways, genes, threshold) {
     pathways<-Filter(function(p) length(intersect(nodes(p), genes)) >= threshold, pathways)
     return(pathways)
+}
+
+DAGOnly<-function(pathways){
+     pathways<-Filter(function(p) is.DAG(p),pathways)
+     return(pathways)
 }
 
 catchErr<-function (l, f){

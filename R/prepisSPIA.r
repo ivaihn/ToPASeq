@@ -16,8 +16,9 @@ checkDEandAll<-function(de, all){
         cat("The following IDs are missing from all vector...:\n")
         cat(paste(IDsNotP, collapse = ","))
     }
+    if (any(is.na(names(de)))) stop("Found NA's in the differentially expressed genes")
     if (length(intersect(names(de), all)) != length(de)) {
-        stop("de must be a vector of log2 fold changes. The names of de should be included in the refference array!")
+        stop("de must be a vector of log2 fold changes. The names of de should be included in the all!")
     }
 }    
     

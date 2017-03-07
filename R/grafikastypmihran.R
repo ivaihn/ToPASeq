@@ -93,8 +93,11 @@ plot.topResult<-function(x, which, graphs, stats="logFC", convert=TRUE, IDs="ENT
 
 #if (!require("Rgraphviz")) stop("Rgraphviz package is missing, please install it")
 res<-x
+if (length(res$res$results)==0) stop("No valid results available")
 
  g<-graphs[[which]]
+ if (is.null(g)) stop("This pathway was not analyzed")
+ 
  if (convert) gc<-convertIdentifiers(graphs[[which]],IDs) else gc<-g
  gp<-convertIdentifiers(graphs[[which]],graphIDs)
  deg.table<-x$degtable
@@ -114,12 +117,12 @@ cols<-cli.color
 
 xxg<-renderOrig(gp, NodeTable, EdgeList, nodesize, fontsize)
 xxred<-renderReduced( gp, reduction, att[[1]], att[[2]], xxg, nodesize, fontsize, agg.fun)
-drawGraph(xxred, res, which, NodeTable, nodesize, fontsize, statName=statName, cex.main=cex.main,col.lim=col.lim, breaks,  legend=add.legend)
+drawGraph(xxred, res, which, NodeTable, nodesize, fontsize, statName=statName, cexmain=cex.main,col.lim=col.lim, breaks, sigpal=sigpal, legend=add.legend, cexlegend=cex.legend)
 }
 
 if ("topResultW" %in% class(res) ){
 if (is.null(dim(res$topo.sig[[which]]))) tsig<-res$topo.sig[[which]] else tsig<-res$topo.sig[[which]][1,]; 
- if (length(tsig)==0) stop("This pathway was not analysed") 
+ if (length(tsig)==0) stop("This pathway was filtered during analysis") 
  if (is.null(dim(res$topo.sig[[which]]))) tsig.whole<-unlist(sapply(res$topo.sig, function(x) x)) else tsig.whole<-unlist(sapply(res$topo.sig, function(x) x[1,]))
  }
 if ("topResultE" %in% class(res) ) {
@@ -144,7 +147,7 @@ NodeTable<-makeNodeTable(g, gc, gp, breaks,  deg.table, sigpal, tsig.whole, tsig
  
  xxg<-renderOrig(gp, NodeTable, EdgeList, nodesize, fontsize)
  xxred<-renderReduced( gp, reduction, att[[1]], att[[2]], xxg,nodesize=nodesize, fontsize=fontsize, agg.fun=agg.fun)
- drawGraph(xxred, res, which, NodeTable, nodesize, fontsize, statName=statName, cex.main=cex.main, col.lim=col.lim, breaks=breaks, sigpal=sigpal, legend=add.legend, cex.legend=cex.legend)
+ drawGraph(xxred, res, which, NodeTable, nodesize, fontsize, statName=statName, cexmain=cex.main, col.lim=col.lim, breaks=breaks, sigpal=sigpal, legend=add.legend, cexlegend=cex.legend)
 
 
 }

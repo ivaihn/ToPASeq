@@ -21,6 +21,9 @@ nodes.df<-sapply(nodes, function(x) {
 
 colnames(nodes.df)<-NULL
 interactions<-kegg.path@edges
+
+if (length(interactions)> 0) { 
+
 interactions.df<-sapply(interactions, function(x) {
  if (length(x@subtype)>0) {
   subtype.name<-paste(sapply(x@subtype, function(y) y@name), collapse=", ")
@@ -37,7 +40,7 @@ colnames(interactions.df)<-NULL
 
 reactions<-kegg.path@reactions
 
-if (is.null(species)) species<-substring(file,1,3)
+if (is.null(species)) species<-substring(file,1,regexpr("[:digits:]", "./hsa01234.xml")-1)
 
 nod<-t(nodes.df)[,1:3]
 if (expandGenes) {
@@ -52,10 +55,7 @@ colnames(nod)<-c("exp.ids","exp.names","exp.type")
 
 if (sum(nod[,3]=="gene")==0) {
 message("The pathway does not contain any genes. Returning empty pathway")
-return(new("pathway", title=path@title, nodes=character() , 
-edges=data.frame(src=character(), dest=character(), direction=factor(),
- type=factor(), stringsAsFactors=FALSE), 
-ident=ident, database=database, species=species, timestamp=Sys.Date()  ))
+return(NULL)
 }
 
 nod[nod[,3]=="group",2]<-nod[match(nod[nod[,3]=="group",2], nod[,1]),2]
@@ -65,23 +65,36 @@ if (nongene=="discard") {nod<-nod[nod[,3]=="gene"| nod[,3]=="group",]}
 
 
 interactions.df<-t(interactions.df)
+
+
+cmi<-interactions.df[interactions.df[,4] %in% c("compound", "hidden compound"),, drop=FALSE]
+cmi<-rbind(cmi[,c(1,5,3,4,5)], cmi[,c(5,2,3,4,5)])
+cmi[,5]<-""
+
+interactions.df<-interactions.df[! interactions.df[,4] %in% c("compound","hidden compound"),, drop=FALSE]
+interactions.df<-rbind(interactions.df, cmi)
+
+
 edg.tabs<-lapply(seq_len(nrow(interactions.df)), function(i) {
-x<-interactions.df[i,]
-ns<-length(nod[nod[,1]==x[1],2])
-nd<-length(nod[nod[,1]==x[2],2])
-ni<-length(strsplit(x[4],", ")[[1]])
-src<-rep(nod[nod[,1]==x[1],2],each=nd*ni) 
-des<-rep(nod[nod[,1]==x[2],2],times=ns*ni) 
-ty<-rep(x[3], ns*nd)
-na<-rep(rep(strsplit(x[4],", ")[[1]], each=nd),times=ns)
-va<-rep(x[5], ns*nd)
-out<-data.frame(src=src, dest=des, type=ty, name=na, value=va, row.names = NULL)
-
-return(out)
-})
-
+      x<-interactions.df[i,]
+      src<-nod[nod[,1]==x[1],2]
+      des<-nod[nod[,1]==x[2],2]
+      #if (union(src, des)!=intersect(src,des)) {
+      out<-rbind(expand.grid(setdiff(src,des), des, unname(x[3]),unname(strsplit(x[4],", ")[[1]]), unname(x[5])),
+                 expand.grid(intersect(src,des), setdiff(des, src),   unname(x[3]),unname(strsplit(x[4],", ")[[1]]), unname(x[5])))
+      #} else out<-expand.grid(src, des, unname(x[3]), unname(strsplit(x[4],", ")[[1]]), unname(x[5])) 
+      attr(out,"out.attrs")<-NULL
+      colnames(out)<-c("src","dest", "type", "name", "value")
+      rownames(out)<-NULL
+      return(out)
+    })
+    
 edg.tabs<-Reduce(rbind,edg.tabs)
 
+if (nrow(edg.tabs)==0) {
+message("Pathway contains only self loops. Returning NULL")
+return(NULL)
+}
 levels(edg.tabs[,4])[levels(edg.tabs[,4])=="compound"]<-"indirect effect"
 
 E<-data.frame(src=as.character(edg.tabs[,1]), dest=as.character(edg.tabs[,2]), 
@@ -100,20 +113,25 @@ compEd<-lapply(comp, function(x) {
  E<-rbind(E,compEd)
 }
 
+E<-E[!duplicated(E),]
 
-gr<-new("Pathway", id=path@title, title=title,  edges=E, 
+gr<-new("Pathway", id=path@name, title=path@title,  edges=E, 
 database=database,species=species, identifier=ident,  
 timestamp=Sys.Date())
-return(p)
 
 
 if (nongene=="propagate") {
- att<-sapply(nodes(p), function(x) strsplit(x,":",fixed=TRUE)[[1]][1])
+ att<-sapply(nodes(gr), function(x) strsplit(x,":",fixed=TRUE)[[1]][1])
  
- non.genes<-nodes(p)[att %in% c("path","ko", "ec", "rn","cpd","gl","group")] #alebo len cisla
- p<-eliminateNode(p, non.genes)
+ non.genes<-nodes(gr)[att %in% c("path","ko", "ec", "rn","cpd","gl","group")] #alebo len cisla
+
+  for (el in non.genes) gr<-eliminateNode(gr, el)
  }
- 
+} else {
+message("The pathway does not contain any edges. Returning NULL")
+return(NULL)
+}
+return(gr) 
 }
 
 KEGG2pathway<-function(file, expandGenes=TRUE, expandCom=TRUE, nongene=c("keep","propagate", "discard"), 

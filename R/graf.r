@@ -15,45 +15,45 @@ rbind(NodeTable,r)
 } else NodeTable
 }
 
-edgetypeslegend<-function(x, cex){
+edgetypeslegend<-function( lcex){
 par(mai=c(1.02,0,0,0))
 plot(1, ylim=c(0,7), xlim=c(1,5), type="n", xlab="", ylab="", frame=FALSE, axes=FALSE)
 
 
-text( 0.8, 6.5, "Edge types", pos=4, font=2, cex=cex)
+text( 0.8, 6.5, "Edge types", pos=4, font=2, cex=lcex)
 lines(c(1,2), c(4,4), lty="dashed")
-text( 2.2, 4, "dissociation", pos=4, cex=cex)
+text( 2.2, 4, "dissociation", pos=4, cex=lcex)
 lines(c(1,2), c(4.5,4.5), lty="dashed")
 lines(c(1.8,2,1.8), c(4.45,4.5,4.55), lty="solid")
-text( 2.2, 4.5, "indirect effect", pos=4, cex=cex)
+text( 2.2, 4.5, "indirect effect", pos=4, cex=lcex)
 
 lines(c(1,2), c(5,5), lty="solid")
-text( 2.2, 5, "bindig, association", pos=4, cex=cex)
+text( 2.2, 5, "bindig, association", pos=4, cex=lcex)
 
 lines(c(1,2), c(5.5,5.5), lty="solid")
 lines(c(2,2), c(5.4,5.6), lty="solid")
-text( 2.2, 5.5, "inhibition", pos=4, cex=cex)
+text( 2.2, 5.5, "inhibition", pos=4, cex=lcex)
 
 lines(c(1,2), c(6,6), lty="solid")
 lines(c(1.8,2,1.8), c(5.95,6,6.05), lty="solid")
-text( 2.2, 6, "activation", pos=4, cex=cex)
+text( 2.2, 6, "activation", pos=4, cex=lcex)
 
-text(0.8, 3.5, "Edge labels", pos=4, font=2, cex=cex)
-text( 1.5, 3, "+p", cex=cex)
-text( 2.2, 3, "phosphorylation", pos=4, cex=cex)
-text( 1.5, 2.5, "-p", cex=cex)
-text( 2.2, 2.5, "dephosphorylation", pos=4, cex=cex)
+text(0.8, 3.5, "Edge labels", pos=4, font=2, cex=lcex)
+text( 1.5, 3, "+p", cex=lcex)
+text( 2.2, 3, "phosphorylation", pos=4, cex=lcex)
+text( 1.5, 2.5, "-p", cex=lcex)
+text( 2.2, 2.5, "dephosphorylation", pos=4, cex=lcex)
 
-text( 1.5, 2, "+u", cex=cex)
-text( 2.2, 2, "ubiquination", pos=4, cex=cex)
+text( 1.5, 2, "+u", cex=lcex)
+text( 2.2, 2, "ubiquination", pos=4, cex=lcex)
 
-text(0.8, 1, "Edge colors", pos=4, font=2, cex=cex)
+text(0.8, 1, "Edge colors", pos=4, font=2, cex=lcex)
 
 legend(x="bottom", legend=c("consistent", "inconstistent", "indecisive"), fill=c("black","red","grey87"), bty="n")
 }
 
 makeBreaks<-function(x, l, sym=TRUE){
-if (sym) b<-c(seq(-max(abs(x)),0,length.out=l/2), seq(0,max(abs(x)),length.out=l/2)) else {}
+if (sym) b<-c(seq(-max(abs(x), na.rm=TRUE),0,length.out=l/2), seq(0,max(abs(x), na.rm=TRUE),length.out=l/2)) else {}
 
 b<-b[-which(b==0)[1]]
 b
@@ -134,7 +134,6 @@ if (is.character(NodeTable$isSig)) {
 sig<-NodeTable$isSig
 names(sig)<- nodes(g)
 }
-print(sig)
 E<-edges(g)
 
 selectValid <- selectInvalid<-rep(FALSE, nrow(E))
@@ -328,8 +327,8 @@ nodeRenderInfo(leg.xx)<-list(fontsize=c(fontsize + setNames(seq_len(length(V)), 
 renderGraph(leg.xx, drawEdges=drawNoEdges<-function(g){} ,graph.pars=list(graph=list(main="")))
 }
 
-makeLegend<-function(bbox, categories, nodesize, fontsize, cex,  col.lim, br, sigpal, name, cex.legend){
-makeNodeSizeLegend(bbox, categories, nodesize, fontsize, cex)
+makeLegend<-function(bbox, categories, nodesize, fontsize, nscex,  col.lim, br, sigpal, name, cex.legend){
+makeNodeSizeLegend(bbox, categories, nodesize, fontsize, nscex)
 
 ext<-max(abs(col.lim))
 
@@ -339,12 +338,13 @@ fields::image.plot(add=TRUE, legend.only=TRUE,
  smallplot= c(.45,.55,0.6,0.9),
  legend.width=0.8, legend.lab=name, legend.mar=3.3, legend.line=3)
 
-edgetypeslegend(1, cex.legend)
+edgetypeslegend( lcex=cex.legend)
 #ToPASeq:::edgetypeslegend(1)
 
 }
 
 headline<-function(res, which, plot){
+res$res<-res$res$results
 if (is.character(which)) main<-which else 
 if (is.list(res$topo.sig)) main<-names(res$topo.sig)[which] else
 if (is.matrix(res$res)) main<-rownames(res$res)[which] else 
@@ -365,12 +365,12 @@ if (plot) title(paste(main, sig, sep="\n"), line=-2)
 return(paste(main, sig, sep="\n"))
 }
 
-drawGraph<-function(xxred, res, which, NodeTable, nodesize, fontsize, statName,  cex.main=1, col.lim=NULL, breaks, sigpal, legend=TRUE, cex.legend=cex.legend){
+drawGraph<-function(xxred, res, which, NodeTable, nodesize, fontsize, statName,  cexmain=1, col.lim=NULL, breaks, sigpal, legend=TRUE, cexlegend){
 
 
 if (legend) layout(matrix(c(1,1,1,1,2,3), nrow=1)) 
  
-renderGraph(xxred, graph.pars=list(graph=list(main=headline(res,which,FALSE), cex.main=cex.main)),  drawNodes=drawNodesPies2,drawEdges=renderEdgesTypes2)
+renderGraph(xxred, graph.pars=list(graph=list(main=headline(res,which,FALSE), cex.main=cexmain)),  drawNodes=drawNodesPies2,drawEdges=renderEdgesTypes2)
 
 
 bbox<-xxred@renderInfo@graph$bbox #4741 4561
@@ -387,7 +387,7 @@ col.lim<-range(stats)
 }
 
 
-if (legend) {makeLegend(bbox, categories, nodesize, fontsize, CC*1.1,  col.lim, breaks[1],sigpal, "Log Fold-Change", cex.legend)
+if (legend) {makeLegend(bbox, categories, nodesize, fontsize, CC*1.1,  col.lim, breaks[1],sigpal, "Log Fold-Change", cex.legend=cexlegend)
 layout(1)
 #par(.pardefault)
 #graph.par(.graphpar)

@@ -1,21 +1,23 @@
-clipperSingle<-function(expr, classes, g, nperm, alphaV, b, permute, method){
+clipperSingle<-function(expr, classes, g, nperm, alphaV, b, permute, method, easyClip){
 
-out<-list(unlist(pathQ(expr, classes, g, nperm=nperm, alphaV=alphaV, b=nperm, permute=TRUE)),
-  easyClip(expr, classes, g, method =method,nperm=nperm, b=nperm))
-
+if (easyClip) 
+  out<-list(unlist(pathQ(expr, classes, g, nperm=nperm, alphaV=alphaV, b=nperm, permute=TRUE)),
+          easyClip(expr, classes, g, method =method,nperm=nperm, b=nperm)) else
+  out<-list(unlist(pathQ(expr, classes, g, nperm=nperm, alphaV=alphaV, b=nperm, permute=TRUE)),
+            list())
 
  return(out)
 }  
         
 
-CLIPPER<-function (pathways, expr, classes, method, testCliques=FALSE, nperms, alphaV=0.05, b=NULL, permute=TRUE){
+CLIPPER<-function (pathways, expr, classes, method, testCliques=FALSE, nperms, alphaV=0.05, b=NULL, permute=TRUE, easyClip=FALSE){
     #if (!require(clipper))        stop("library clipper is missing")
 
     classes<-factor(as.numeric(factor(classes)))
 message("Analysing pathway:\n")
       out<-catchErr(pathways, function(p) {
       cat(p[[2]],"\n")
-clipperSingle(expr, classes, p[[1]], nperms, alphaV, b, permute, method)
+clipperSingle(expr, classes, p[[1]], nperms, alphaV, b, permute, method, easyClip)
 })
 cliq.test<-list()
 if (testCliques) {
@@ -35,8 +37,9 @@ res$var.q.value<-p.adjust(res$alphaVar,"fdr")
 
 paths<-lapply(out[[1]],function(x) x[[2]])
 
-out[[1]]<-list(res, paths, cliq.test)
-}
+out[[1]]<-list(results=res, paths=paths, cliq.test)
+} else 
+out[[1]]<-list(results=out[1:2], paths=list(), cliq.test)
 return(out)
 }
 
