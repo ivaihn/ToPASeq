@@ -19,8 +19,7 @@ A character, name of the method. Currently implemented are: \code{SPIA}, \code{P
 }
 \details{
 Nodes, relations and reactions found in KGML files are processed as in the original implementation of the methods, or as stated in the original publication. For clipper, the \code{graphite}'s approach described in Sales, 2012 was used. 
-}
-\warning{
+
 \code{preparePaths=FALSE} must be used in functions that apply the method e.g. \code{SPIA()}
 }
 \value{
