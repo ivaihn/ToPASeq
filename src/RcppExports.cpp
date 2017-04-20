@@ -5,6 +5,18 @@
 
 using namespace Rcpp;
 
+// betweenness
+NumericVector betweenness(IntegerMatrix g, CharacterVector V);
+RcppExport SEXP ToPASeq_betweenness(SEXP gSEXP, SEXP VSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< IntegerMatrix >::type g(gSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type V(VSEXP);
+    __result = Rcpp::wrap(betweenness(g, V));
+    return __result;
+END_RCPP
+}
 // accCpp
 List accCpp(IntegerMatrix AM, CharacterVector nodeNames, CharacterVector index);
 RcppExport SEXP ToPASeq_accCpp(SEXP AMSEXP, SEXP nodeNamesSEXP, SEXP indexSEXP) {

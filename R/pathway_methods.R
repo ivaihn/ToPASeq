@@ -236,7 +236,7 @@ rownames(E)<-seq_len(nrow(E))
 }
 new("Pathway", id=object@id,title=object@title,  edges=E, 
 database=object@database, species=object@species,
-identifiers=object@identifiers,  timestamp=Sys.Date()
+identifier=object@identifiers,  timestamp=Sys.Date()
 )
 
 })
