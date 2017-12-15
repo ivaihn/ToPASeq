@@ -1,7 +1,7 @@
 Package: ToPASeq
 Type: Package
 Title: Package for Topology-based Pathway Analysis of RNASeq data
-Version: 1.13.0
+Version: 1.13.1
 Date: 2015-12-02
 Author: Ivana Ihnatova, Eva Budinska
 Maintainer: Ivana Ihnatova <ihnatova@iba.muni.cz>
@@ -19,3 +19,4 @@ License: AGPL-3
 biocViews: Software, GeneExpression, NetworkEnrichment,
         GraphAndNetwork, RNASeq, Visualization, Microarray, Pathways,
         DifferentialExpression,
+PackageStatus: Deprecated
