@@ -1,15 +1,12 @@
 #include <Rcpp.h>
 
-
-
 using namespace Rcpp;
-
-
 // [[Rcpp::export]]
 
-IntegerVector downstreamCpp(IntegerMatrix AM, 
+IntegerVector downstreamCpp(    IntegerMatrix AM, 
                                 CharacterVector nodeNames, 
-                                CharacterVector index){
+                                CharacterVector index   )
+{
 int nN = nodeNames.size();
 int nIndex = index.size();
 IntegerVector whN = match(index, nodeNames);

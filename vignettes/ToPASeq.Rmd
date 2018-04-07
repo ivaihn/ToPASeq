@@ -1,0 +1,135 @@
+---
+title: "Topology-based pathway analysis of RNA-seq data"
+author:
+    - name: Ivana Ihnatova
+      affiliation: Institute of Biostatistics and Analyses, 
+                   Masarykova University Brno
+      email: ihnatova@iba.muni.cz
+    - name: Ludwig Geistlinger
+      affiliation: School of Public Health, City University of New York
+      email: ludwig.geistlinger@sph.cuny.edu
+package: ToPASeq
+abstract: > 
+    The _ToPASeq_ package implements methods for topology-based 
+    pathway analysis of RNA-seq data. PRS, PWEA, TAPPA.
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
+vignette: >
+  % \VignetteIndexEntry{Topology-based pathway analysis of RNA-seq data}
+  % \VignetteEngine{knitr::rmarkdown}
+---
+
+```{r setup, echo=FALSE}
+suppressPackageStartupMessages({ 
+    library(ToPASeq)
+    library(EnrichmentBrowser)
+    library(graphite)
+})
+```
+
+# Setup
+We start by loading the package.
+
+```{r lib}
+library(ToPASeq)
+```
+
+# Preparing the data
+
+For RNA-seq data, we consider transcriptome profiles of four primary human
+airway smooth muscle cell lines in two conditions: control and treatment with
+dexamethasone
+[Himes et al., 2014](https://doi.org/10.1371/journal.pone.0099625).
+
+We load the `r Biocpkg("airway")` dataset 
+
+```{r loadAirway}
+library(airway)
+data(airway)
+```
+
+For further analysis, we only keep genes that are annotated to an ENSEMBL gene ID. 
+```{r processAirway}
+airSE <- airway[grep("^ENSG", rownames(airway)),]
+dim(airSE)
+assay(airSE)[1:4,1:4]
+```
+
+# Differential expression
+
+The `r Biocpkg("EnrichmentBrowser")` package incorporates established 
+functionality from the `r Biocpkg("limma")` package for differential expression 
+analysis.
+This involves the `voom` transformation when applied to RNA-seq data.
+Alternatively, differential expression analysis for RNA-seq data can also be
+carried out based on the negative binomial distribution with `r Biocpkg("edgeR")`
+and `r Biocpkg("DESeq2")`.
+
+This can be performed using the function `EnrichmentBrowser::deAna`
+and assumes some standardized variable names:
+
+- **GROUP** defines the sample groups being contrasted,
+- **BLOCK** defines paired samples or sample blocks, as e.g. for batch effects.
+
+For more information on experimental design, see the
+[limma user's guide](https://www.bioconductor.org/packages/devel/bioc/vignettes/limma/inst/doc/usersguide.pdf),
+chapter 9.
+
+For the airway dataset, the **GROUP** variable indicates whether the cell 
+lines have been treated with dexamethasone (1) or not (0).
+
+```{r pdataAirway}
+airSE$GROUP <- ifelse(airway$dex == "trt", 1, 0)
+table(airSE$GROUP)
+```
+
+Paired samples, or in general sample batches/blocks, can be defined via a
+**BLOCK** column in the `colData` slot.
+For the airway dataset, the sample blocks correspond to the four different cell
+lines.
+
+```{r pdataAirway2}
+airSE$BLOCK <- airway$cell
+table(airSE$BLOCK)
+```
+
+For RNA-seq data, the `deAna` function can be used to carry out differential 
+expression analysis between the two groups either based on functionality from
+*limma* (that includes the `voom` transformation), or
+alternatively, the frequently used *edgeR* or *DESeq2*
+package. Here, we use the analysis based on *edgeR*.
+
+```{r deAirway}
+library(EnrichmentBrowser)
+airSE <- deAna(airSE, de.method="edgeR")
+rowData(airSE, use.names=TRUE)
+```
+
+
+# Pathway analysis
+
+```{r pwys}
+library(graphite)
+pwys <- pathways(species="hsapiens", database="kegg")
+pwys
+```
+
+```{r mapIDs}
+airSE <- map.ids(airSE, org="hsa", from="ENSEMBL", to="ENTREZID")
+```
+
+```{r genes}
+all <- names(airSE)
+de.ind <- rowData(airSE)$ADJ.PVAL < 0.01
+de <- rowData(airSE)$FC[de.ind]
+names(de) <- all[de.ind]
+```
+
+```{r nrGenes}
+length(all)
+length(de)
+```
+
+

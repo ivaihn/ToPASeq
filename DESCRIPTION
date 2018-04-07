@@ -1,22 +1,33 @@
 Package: ToPASeq
-Type: Package
-Title: Package for Topology-based Pathway Analysis of RNASeq data
-Version: 1.13.1
-Date: 2015-12-02
-Author: Ivana Ihnatova, Eva Budinska
-Maintainer: Ivana Ihnatova <ihnatova@iba.muni.cz>
-Description: Implementation of seven methods for topology-based pathway
-        analysis of both RNASeq and microarray data: SPIA, DEGraph,
-        TopologyGSA, TAPPA, PRS, PWEA and a visualization tool for a
-        single pathway.
-Depends: graphite (>= 1.16), gRbase, graph, locfit, Rgraphviz
-Imports: R.utils, methods, Biobase, parallel, edgeR, DESeq2, SummarizedExperiment, RBGL, DESeq, fields,
-        limma, TeachingDemos, KEGGgraph, qpgraph, clipper, AnnotationDbi, doParallel
-Suggests: RUnit, BiocGenerics, gageData, DEGraph,  plotrix, org.Hs.eg.db
+Version: 1.13.2
+Date: 2018-03-03
+Title: Topology-based pathway analysis of RNA-seq data
+Author: Ivana Ihnatova, Eva Budinska, Ludwig Geistlinger
+Maintainer: Ludwig Geistlinger <ludwig.geistlinger@sph.cuny.edu>
+Description: Implementation of methods for topology-based 
+    pathway analysis of RNA-seq data. PRS, PWEA, TAPPA. 
+Depends: 
+    R(>= 3.5.0), graphite 
+Imports:
+    Rcpp,
+    graph,
+    methods 
+Suggests: 
+    BiocStyle,
+    EnrichmentBrowser, 
+    airway,  
+    knitr,
+    rmarkdown
 LinkingTo: Rcpp
 LazyData: yes
 License: AGPL-3
-biocViews: Software, GeneExpression, NetworkEnrichment,
-        GraphAndNetwork, RNASeq, Visualization, Microarray, Pathways,
-        DifferentialExpression,
-PackageStatus: Deprecated
+biocViews: 
+    GeneExpression, 
+    RNASeq, 
+    DifferentialExpression,
+    GraphAndNetwork, 
+    Pathways, 
+    NetworkEnrichment, 
+    Visualization
+VignetteBuilder: knitr
+RoxygenNote: 6.0.1
