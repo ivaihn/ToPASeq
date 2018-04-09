@@ -1,13 +1,17 @@
 Package: ToPASeq
-Version: 1.13.2
-Date: 2018-03-03
+Version: 1.13.3
+Date: 2018-04-09
 Title: Topology-based pathway analysis of RNA-seq data
 Author: Ivana Ihnatova, Eva Budinska, Ludwig Geistlinger
 Maintainer: Ludwig Geistlinger <ludwig.geistlinger@sph.cuny.edu>
-Description: Implementation of methods for topology-based 
-    pathway analysis of RNA-seq data. PRS, PWEA, TAPPA. 
+Description: Implementation of methods for topology-based pathway analysis of 
+    RNA-seq data. This includes Topological Analysis of Pathway Phenotype 
+    Association (TAPPA; Gao and Wang, 2007), PathWay Enrichment Analysis (PWEA; 
+    Hung et al., 2010), and the Pathway Regulation Score (PRS; Ibrahim et al., 
+    2012).
 Depends: 
-    R(>= 3.5.0), graphite 
+    R(>= 3.5.0), 
+    graphite 
 Imports:
     Rcpp,
     graph,

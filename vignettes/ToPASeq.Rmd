@@ -10,8 +10,11 @@ author:
       email: ludwig.geistlinger@sph.cuny.edu
 package: ToPASeq
 abstract: > 
-    The _ToPASeq_ package implements methods for topology-based 
-    pathway analysis of RNA-seq data. PRS, PWEA, TAPPA.
+    The _ToPASeq_ package implements methods for topology-based pathway analysis
+    of RNA-seq data. This includes Topological Analysis of Pathway Phenotype 
+    Association (TAPPA; Gao and Wang, 2007), PathWay Enrichment Analysis (PWEA; 
+    Hung et al., 2010), and the Pathway Regulation Score (PRS; Ibrahim et al., 
+    2012).
 output:
   BiocStyle::html_document:
     toc: true
@@ -110,15 +113,35 @@ rowData(airSE, use.names=TRUE)
 
 # Pathway analysis
 
+Pathways are typically represented as graphs, where the nodes are genes and edges 
+between the nodes represent interaction between genes. 
+
+The `r Biocpkg("graphite")` package provides pathway collections from major 
+pathway databases such as KEGG, Biocarta, Reactome, and NCI.
+
+Here, we retrieve human KEGG pathways.  
+
 ```{r pwys}
 library(graphite)
 pwys <- pathways(species="hsapiens", database="kegg")
 pwys
 ```
 
+As the airway dataset uses ENSEMBL gene IDs, but the nodes of the pathways are 
+based on NCBI Entrez Gene IDs,
+
+```{r nodes}
+nodes(pwys[[1]])
+```
+
+we first map the gene IDs in the airway dataset from ENSEMBL to ENTREZ IDs. 
+
 ```{r mapIDs}
 airSE <- map.ids(airSE, org="hsa", from="ENSEMBL", to="ENTREZID")
 ```
+
+Next, we define all genes with adjusted _p_-value below 0.01 as differentially 
+expressed, and collect their log2 fold change for further analysis.
 
 ```{r genes}
 all <- names(airSE)
@@ -127,9 +150,39 @@ de <- rowData(airSE)$FC[de.ind]
 names(de) <- all[de.ind]
 ```
 
+This results in 2,426 DE genes - out of 11,780 genes in total. 
+
 ```{r nrGenes}
 length(all)
 length(de)
 ```
 
+## Pathway Regulation Score (PRS)
 
+The Pathway Regulation Score (PRS) incorporates the pathway topology by weighting
+the indiviudal gene-level log2 fold changes by the number of downstream DE genes. 
+The weighted absolute fold changes are summed across the pathway and statistical 
+significance is assessed by permutation of genes. 
+[Ibrahim et al., 2012](https://doi.org/10.1089/cmb.2011.0182)   
+    
+
+```{r prs}
+res <- prs(de, all, pwys[1:100], nperm=100)
+head(res)
+```
+
+Corresponding gene weights (number of downstream DE genes) can be obtained for a
+pathway of choice via
+```{r prsWeights}
+ind <- grep("Ras signaling pathway", names(pwys))
+weights <- prsWeights(pwys[[ind]], de, all)
+weights
+```
+
+Inspecting the genes with maximum number of downstream DE genes
+```{r maxWeight}
+weights[weights == max(weights)]
+```
+reveals important upstream regulators including several G protein subunits 
+such as subunit beta 2 (Entrez Gene ID 
+[2783](https://www.ncbi.nlm.nih.gov/gene/?term=2783)).
