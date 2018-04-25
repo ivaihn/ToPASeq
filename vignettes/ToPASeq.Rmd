@@ -137,7 +137,7 @@ nodes(pwys[[1]])
 we first map the gene IDs in the airway dataset from ENSEMBL to ENTREZ IDs. 
 
 ```{r mapIDs}
-airSE <- map.ids(airSE, org="hsa", from="ENSEMBL", to="ENTREZID")
+airSE <- idMap(airSE, org="hsa", from="ENSEMBL", to="ENTREZID")
 ```
 
 Next, we define all genes with adjusted _p_-value below 0.01 as differentially 
