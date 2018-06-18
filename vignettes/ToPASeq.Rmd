@@ -33,6 +33,12 @@ suppressPackageStartupMessages({
 ```
 
 # Setup
+
+**Note:** the `r Biocpkg("ToPASeq")` package currently undergoes a major rework due to 
+the change of the package maintainer. It is recommended to use the topology-based methods 
+implemented in the `r Biocpkg("EnrichmentBrowser")` or the `r Biocpkg("graphite")`
+package instead.
+
 We start by loading the package.
 
 ```{r lib}

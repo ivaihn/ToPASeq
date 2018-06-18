@@ -1,6 +1,6 @@
 Package: ToPASeq
-Version: 1.15.0
-Date: 2018-04-24
+Version: 1.15.1
+Date: 2018-04-14
 Title: Topology-based pathway analysis of RNA-seq data
 Author: Ivana Ihnatova, Eva Budinska, Ludwig Geistlinger
 Maintainer: Ludwig Geistlinger <ludwig.geistlinger@sph.cuny.edu>
